@@ -1,0 +1,2 @@
+<34>hello world from sample.txt
+<134>example message with local0 facility and info severity

@@ -1,0 +1,81 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <arpa/inet.h>
+
+#define PORT 8090
+#define LOGFILE "/var/log/custom_syslog.log"
+
+void send_response(int client_fd) {
+    FILE *f = fopen(LOGFILE, "r");
+    char line[1024];
+
+    dprintf(client_fd,
+        "HTTP/1.1 200 OK\r\n"
+        "Content-Type: text/html\r\n\r\n"
+        "<html><head><title>Syslog Viewer</title></head><body>"
+        "<h2>Syslog Log File</h2>"
+        "<table border='1' cellpadding='4' cellspacing='0'>"
+        "<tr><th>Timestamp</th><th>Host</th><th>Port</th><th>Facility</th><th>Severity</th><th>Message</th></tr>"
+    );
+
+    if (f) {
+        while (fgets(line, sizeof(line), f)) {
+            // Expected log format:
+            // YYYY-MM-DD HH:MM:SS [host:port] facility=... severity=... msg=...
+            char ts[32], host[32], facility[32], severity[32], msg[900];
+            int port;
+            if (sscanf(line, "%31s %*s [%31[^]:]:%d] facility=%31s severity=%31s msg=%899[^\n]",
+                       ts, host, &port, facility, severity, msg) == 6) {
+                dprintf(client_fd,
+                    "<tr><td>%s</td><td>%s</td><td>%d</td><td>%s</td><td>%s</td><td>%s</td></tr>",
+                    ts, host, port, facility, severity, msg);
+            }
+        }
+        fclose(f);
+    } else {
+        dprintf(client_fd, "<tr><td colspan='6'>Log file not found.</td></tr>");
+    }
+
+    dprintf(client_fd, "</table></body></html>");
+}
+
+int main(void) {
+    int server_fd = socket(AF_INET, SOCK_STREAM, 0);
+    if (server_fd < 0) {
+        perror("socket");
+        exit(1);
+    }
+
+    int opt = 1;
+    setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
+
+    struct sockaddr_in addr;
+    addr.sin_family = AF_INET;
+    addr.sin_addr.s_addr = INADDR_ANY;
+    addr.sin_port = htons(PORT);
+
+    if (bind(server_fd, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
+        perror("bind");
+        exit(1);
+    }
+
+    if (listen(server_fd, 10) < 0) {
+        perror("listen");
+        exit(1);
+    }
+
+    printf("Syslog web server running on http://localhost:%d/\n", PORT);
+
+    while (1) {
+        int client_fd = accept(server_fd, NULL, NULL);
+        if (client_fd < 0) continue;
+
+        send_response(client_fd);
+        close(client_fd);
+    }
+
+    close(server_fd);
+    return 0;
+}
