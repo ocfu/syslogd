@@ -119,12 +119,20 @@
     };
   }
 
+  function addAllOption(sel) {
+    var o = document.createElement("option");
+    o.value = ""; o.textContent = "All";
+    sel.appendChild(o);
+  }
+
   function populateFilters() {
+    addAllOption(facilityEl);
     FACILITIES.forEach(function (f) {
       var o = document.createElement("option");
       o.value = f; o.textContent = f;
       facilityEl.appendChild(o);
     });
+    addAllOption(severityEl);
     SEVERITIES.forEach(function (s) {
       var o = document.createElement("option");
       o.value = s; o.textContent = s;
