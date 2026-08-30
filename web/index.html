@@ -16,8 +16,8 @@
   <section class="controls">
     <div class="filter-row">
       <input id="searchText" type="search" placeholder="Search message / host…" autocomplete="off">
-      <select id="filterFacility" title="Facility"></select>
       <select id="filterSeverity" title="Severity"></select>
+      <select id="filterFacility" title="Facility"></select>
       <button id="btnClear" type="button" title="Clear the visible list">Clear</button>
       <button id="btnPause" type="button" title="Pause / resume live tail">Pause</button>
     </div>
@@ -35,10 +35,10 @@
         <tr>
           <th class="col-time">Timestamp</th>
           <th class="col-host">Host</th>
-          <th class="col-port">Port</th>
-          <th class="col-facility">Facility</th>
-          <th class="col-severity">Severity</th>
           <th class="col-msg">Message</th>
+          <th class="col-severity">Severity</th>
+          <th class="col-facility">Facility</th>
+          <th class="col-port">Port</th>
         </tr>
       </thead>
       <tbody id="logRows"></tbody>

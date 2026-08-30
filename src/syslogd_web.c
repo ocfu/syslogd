@@ -180,13 +180,14 @@ static void parse_log_line(const char *pLine, LogEntry *pE) {
    const char *p = pLine;
    char *pOut = pE->szTs;
    size_t n = 0;
+   /* Date token "YYYY-MM-DD". */
    while (*p && *p != ' ' && n + 1 < sizeof(pE->szTs)) pOut[n++] = *p++;
-   pE->szTs[n] = '\0';
    if (n == 0 || *p != ' ') return;
-
-   /* Skip the second time token (the space-separated HH:MM:SS). */
+   /* Time token "HH:MM:SS", kept as part of the full timestamp. */
+   if (n + 1 < sizeof(pE->szTs)) pOut[n++] = ' ';
    p++;
-   while (*p && !isspace((unsigned char)*p)) p++;
+   while (*p && !isspace((unsigned char)*p) && n + 1 < sizeof(pE->szTs)) pOut[n++] = *p++;
+   pE->szTs[n] = '\0';
    while (*p && isspace((unsigned char)*p)) p++;
 
    /* Expect '[' host ':' port ']'. Host may be space-padded. */

@@ -142,9 +142,12 @@ td.col-msg { white-space: normal; word-break: break-word; }
 
 tr:hover { background: rgba(56, 189, 248, 0.06); }
 
-.col-time { font-variant-numeric: tabular-nums; }
-.col-host { font-variant-numeric: tabular-nums; }
-.col-port { text-align: right; color: var(--text-dim); }
+.col-time { width: 172px; font-variant-numeric: tabular-nums; }
+.col-host { width: 130px; font-variant-numeric: tabular-nums; }
+.col-msg { width: auto; }
+.col-severity { width: 110px; }
+.col-facility { width: 96px; }
+.col-port { width: 60px; text-align: right; color: var(--text-dim); }
 
 .empty td { text-align: center; color: var(--text-dim); padding: 30px; font-style: italic; }
 

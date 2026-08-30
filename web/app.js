@@ -39,10 +39,10 @@
     tr.innerHTML =
       "<td class='col-time'>" + esc(e.ts) + "</td>" +
       "<td class='col-host'>" + esc(e.host) + "</td>" +
-      "<td class='col-port'>" + esc(e.port) + "</td>" +
-      "<td class='col-facility'><span class='badge " + badgeClass("fac", e.facility) + "'>" + esc(e.facility || "unknown") + "</span></td>" +
+      "<td class='col-msg'>" + esc(e.msg) + "</td>" +
       "<td class='col-severity'><span class='badge " + badgeClass("sev", e.severity) + "'>" + esc(e.severity || "unknown") + "</span></td>" +
-      "<td class='col-msg'>" + esc(e.msg) + "</td>";
+      "<td class='col-facility'><span class='badge " + badgeClass("fac", e.facility) + "'>" + esc(e.facility || "unknown") + "</span></td>" +
+      "<td class='col-port'>" + esc(e.port) + "</td>";
     return tr;
   }
 
