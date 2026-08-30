@@ -12,6 +12,7 @@
  */
 
 #include <arpa/inet.h>
+#include <ctype.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <netdb.h>
@@ -30,6 +31,8 @@
 #define BUFFER_SIZE 2048
 #define MAX_LOG_SIZE (5 * 1024 * 1024)  // 5 MB
 #define PID_FILE "/var/run/custom_syslog.pid"
+#define STATUS_FILE "/var/run/custom_syslog.status"
+#define SYSLOGD_VERSION "0.0.1"
 
 const char *facility_names[] = {
     "kern", "user", "mail", "daemon", "auth", "syslog", "lpr", "news",
@@ -61,6 +64,19 @@ void write_pidfile(void) {
    }
 }
 
+void write_status_file(void) {
+   FILE *f = fopen(STATUS_FILE, "w");
+   if (!f) {
+      syslog(LOG_ERR, "Failed to write status file: %s", strerror(errno));
+      return;
+   }
+   fprintf(f, "version=%s\n", SYSLOGD_VERSION);
+   fprintf(f, "pid=%d\n", getpid());
+   fprintf(f, "port=%d\n", syslog_port);
+   fprintf(f, "logfile=%s\n", log_file);
+   fclose(f);
+}
+
 void rotate_log_if_needed(const char *filename) {
    struct stat st;
    if (stat(filename, &st) == 0 && st.st_size >= MAX_LOG_SIZE) {
@@ -82,7 +98,23 @@ void rotate_log_if_needed(const char *filename) {
    }
 }
 
-void write_log(int pri, const char *msg,
+// Detect a complete RFC 5424 message: <PRI>1 <TIMESTAMP> ...
+// Such messages already carry their own TIMESTAMP/HOSTNAME/APP-NAME/PROCID/MSGID/SD,
+// so they are passed through unchanged instead of being re-wrapped.
+static int is_rfc5424_raw(const char *p) {
+   if (!p || *p != '<') return 0;
+   p++;
+   if (!isdigit((unsigned char)*p)) return 0;
+   while (isdigit((unsigned char)*p)) p++;
+   if (*p != '>') return 0;
+   p++;
+   if (*p != '1') return 0;   // VERSION is 1
+   p++;
+   if (*p != ' ') return 0;
+   return 1;
+}
+
+void write_log(int pri, const char *msg, const char *raw,
                const struct sockaddr_in *client) {
    FILE *f;
 
@@ -94,45 +126,60 @@ void write_log(int pri, const char *msg,
       return;
    }
 
-   // RFC 3339 timestamp in UTC with milliseconds.
-   struct timeval tv;
-   gettimeofday(&tv, NULL);
-   char timestr[64];
-   strftime(timestr, sizeof(timestr), "%Y-%m-%dT%H:%M:%S", gmtime(&tv.tv_sec));
-   size_t nTs = strlen(timestr);
-   snprintf(timestr + nTs, sizeof(timestr) - nTs, ".%03ldZ", (long)(tv.tv_usec / 1000));
+   char line[BUFFER_SIZE * 2];
+   size_t n = 0;
 
-   // Resolve hostname (RFC 5424 HOSTNAME, no padding).
-   char host[NI_MAXHOST];
-   int res = getnameinfo((struct sockaddr *)client, sizeof(*client),
-                         host, sizeof(host), NULL, 0, NI_NAMEREQD);
-   if (res != 0) {
-      // Fallback to IP address if hostname cannot be resolved
-      strncpy(host, inet_ntoa(client->sin_addr), sizeof(host));
-      host[sizeof(host) - 1] = '\0';
+   if (is_rfc5424_raw(raw)) {
+      // Already a complete RFC 5424 message: write it through unchanged,
+      // preserving the message's own TIMESTAMP/HOSTNAME/APP-NAME/PROCID/MSGID/SD/MSG.
+      const char *p;
+      for (p = raw; *p && n + 1 < sizeof(line); p++) {
+         if (*p == '\r' || *p == '\n') line[n++] = ' ';
+         else line[n++] = *p;
+      }
+      line[n] = '\0';
    } else {
-      // Only use the first part of the domain, limit to the host label
-      char short_host[256];
-      snprintf(short_host, sizeof(short_host), "%s", host);
-      char *dot = strchr(short_host, '.');
-      if (dot) *dot = '\0';
-      strncpy(host, short_host, sizeof(host));
-      host[sizeof(host) - 1] = '\0';
+      // Simple <PRI>msg: wrap it into an RFC 5424 line using our receive time.
+      // RFC 3339 timestamp in UTC with milliseconds.
+      struct timeval tv;
+      gettimeofday(&tv, NULL);
+      char timestr[64];
+      strftime(timestr, sizeof(timestr), "%Y-%m-%dT%H:%M:%S", gmtime(&tv.tv_sec));
+      size_t nTs = strlen(timestr);
+      snprintf(timestr + nTs, sizeof(timestr) - nTs, ".%03ldZ", (long)(tv.tv_usec / 1000));
+
+      // Resolve hostname (RFC 5424 HOSTNAME, no padding).
+      char host[NI_MAXHOST];
+      int res = getnameinfo((struct sockaddr *)client, sizeof(*client),
+                            host, sizeof(host), NULL, 0, NI_NAMEREQD);
+      if (res != 0) {
+         // Fallback to IP address if hostname cannot be resolved
+         strncpy(host, inet_ntoa(client->sin_addr), sizeof(host));
+         host[sizeof(host) - 1] = '\0';
+      } else {
+         // Only use the first part of the domain, limit to the host label
+         char short_host[256];
+         snprintf(short_host, sizeof(short_host), "%s", host);
+         char *dot = strchr(short_host, '.');
+         if (dot) *dot = '\0';
+         strncpy(host, short_host, sizeof(host));
+         host[sizeof(host) - 1] = '\0';
+      }
+
+      // RFC 5424: <PRI>VERSION TIMESTAMP HOSTNAME APP-NAME PROCID MSGID SD MSG
+      int r = snprintf(line, sizeof(line), "<%d>1 %s %s - - - - ", pri, timestr, host);
+      if (r > 0) n = (size_t)r;
+
+      // Sanitize the message: MSG may not contain a line separator.
+      const char *p;
+      for (p = msg; *p && n + 1 < sizeof(line); p++) {
+         if (*p == '\r' || *p == '\n') line[n++] = ' ';
+         else line[n++] = *p;
+      }
+      line[n] = '\0';
    }
 
-   // Sanitize the message: RFC 5424 MSG may not contain the line separator
-   // used by the log writer (we write one line per message).
-   char clean[BUFFER_SIZE];
-   size_t nClean = 0;
-   for (const char *p = msg; *p && nClean + 1 < sizeof(clean); p++) {
-      if (*p == '\r' || *p == '\n') clean[nClean++] = ' ';
-      else clean[nClean++] = *p;
-   }
-   clean[nClean] = '\0';
-
-   // RFC 5424: <PRI>VERSION TIMESTAMP HOSTNAME APP-NAME PROCID MSGID SD MSG
-   fprintf(f, "<%d>1 %s %s - - - - %s\n",
-           pri, timestr, host, clean);
+   fprintf(f, "%s\n", line);
 
    fclose(f);
 }
@@ -204,14 +251,17 @@ void daemonize(void) {
 }
 
 void usage(const char *prog) {
-   fprintf(stderr, "Usage: %s [-p port] [-l logfile] [-d]\n", prog);
+   fprintf(stderr, "Usage: %s [-p port] [-l logfile] [-d] [-V]\n", prog);
    exit(EXIT_FAILURE);
 }
 
 int main(int argc, char *argv[]) {
    int opt;
-   while ((opt = getopt(argc, argv, "p:l:d")) != -1) {
+   while ((opt = getopt(argc, argv, "p:l:dV")) != -1) {
       switch (opt) {
+         case 'V':
+            printf("syslogd %s\n", SYSLOGD_VERSION);
+            exit(EXIT_SUCCESS);
          case 'p':
             syslog_port = atoi(optarg);
             break;
@@ -233,12 +283,13 @@ int main(int argc, char *argv[]) {
       daemonize();
       write_pidfile();
    }
+   write_status_file();
 
    signal(SIGTERM, handle_signal);
    signal(SIGINT, handle_signal);
 
-   syslog(LOG_INFO, "Custom syslog server started (port=%d, logfile=%s, daemon=%s)",
-          syslog_port, log_file, run_as_daemon ? "yes" : "no");
+   syslog(LOG_INFO, "Custom syslog server v%s started (port=%d, logfile=%s, daemon=%s)",
+          SYSLOGD_VERSION, syslog_port, log_file, run_as_daemon ? "yes" : "no");
 
    int sockfd;
    struct sockaddr_in server_addr, client_addr;
@@ -282,7 +333,7 @@ int main(int argc, char *argv[]) {
       int pri;
       parse_syslog_message(buffer, fac, sev, &pri, text);
 
-      write_log(pri, text, &client_addr);
+      write_log(pri, text, buffer, &client_addr);
 
       if (!run_as_daemon) {  // Print to stdout in foreground mode
          printf("[%s:%d] %s.%s: %s\n",
@@ -296,6 +347,7 @@ int main(int argc, char *argv[]) {
    syslog(LOG_INFO, "Custom syslog server shutting down");
    close(sockfd);
    if (run_as_daemon) unlink(PID_FILE);
+   unlink(STATUS_FILE);
    closelog();
    return 0;
 }

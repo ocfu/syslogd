@@ -34,6 +34,8 @@
 #define LOGFILE "/var/log/custom_syslog.log"
 #define SSE_POLL_MS 500
 #define SSE_INITIAL_LINES 200
+#define SYSLOGD_WEB_VERSION "0.0.1"
+#define SYSLOGD_STATUS_FILE "/var/run/custom_syslog.status"
 
 static const char *g_szWebRoot = "web";
 
@@ -584,6 +586,38 @@ static void serve_file(int nFd, const char *pUrlPath) {
 /* Per-connection handling                                             */
 /* ------------------------------------------------------------------ */
 
+static void api_status(int nFd) {
+   int online = 0;
+   long pid = -1;
+   char version[32] = "";
+   FILE *f = fopen(SYSLOGD_STATUS_FILE, "r");
+   if (f) {
+      char line[160];
+      while (fgets(line, sizeof(line), f)) {
+         if (strncmp(line, "version=", 8) == 0) {
+            snprintf(version, sizeof(version), "%s", line + 8);
+            char *nl = strchr(version, '\n');
+            if (nl) *nl = '\0';
+         } else if (strncmp(line, "pid=", 4) == 0) {
+            pid = atol(line + 4);
+         }
+      }
+      fclose(f);
+   }
+   if (pid > 0) {
+      if (kill((pid_t)pid, 0) == 0 || errno == EPERM) online = 1;
+   }
+   char szBody[256];
+   snprintf(szBody, sizeof(szBody),
+            "{\"name\":\"syslogd\",\"online\":%s,\"version\":\"%s\",\"pid\":%ld}",
+            online ? "true" : "false",
+            (version[0] ? version : "-"), pid);
+   send_head(nFd, "200 OK", "application/json", NULL, (long)strlen(szBody));
+   dprintf(nFd, "%s", szBody);
+   shutdown(nFd, SHUT_WR);
+   close(nFd);
+}
+
 static void handle_connection(int nFd) {
    char szReq[8192];
    int nLen = read_request(nFd, szReq, sizeof(szReq));
@@ -620,6 +654,22 @@ static void handle_connection(int nFd) {
       return;
    }
 
+   if (strcmp(szPath, "/api/version") == 0) {
+      char szBody[128];
+      snprintf(szBody, sizeof(szBody),
+               "{\"name\":\"syslogd_web\",\"version\":\"%s\"}", SYSLOGD_WEB_VERSION);
+      send_head(nFd, "200 OK", "application/json", NULL, (long)strlen(szBody));
+      dprintf(nFd, "%s", szBody);
+      shutdown(nFd, SHUT_WR);
+      close(nFd);
+      return;
+   }
+
+   if (strcmp(szPath, "/api/status") == 0) {
+      api_status(nFd);
+      return;
+   }
+
    if (strcmp(szPath, "/favicon.ico") == 0) {
       send_head(nFd, "204 No Content", "image/x-icon", NULL, 0);
       shutdown(nFd, SHUT_WR);
@@ -639,13 +689,17 @@ static void handle_connection(int nFd) {
 static void print_usage(const char *pProg) {
    printf("Usage: %s [-w webroot]\n", pProg);
    printf("  -w <dir>  Directory with index.html/style.css/app.js (default: web)\n");
+   printf("  -V        Print version and exit\n");
 }
 
 int main(int argc, char *argv[]) {
    int nOpt;
-   while ((nOpt = getopt(argc, argv, "w:h")) != -1) {
+   while ((nOpt = getopt(argc, argv, "w:hV")) != -1) {
       switch (nOpt) {
          case 'w': g_szWebRoot = optarg; break;
+         case 'V':
+            printf("syslogd_web %s\n", SYSLOGD_WEB_VERSION);
+            return 0;
          case 'h':
             print_usage(argv[0]);
             return 0;

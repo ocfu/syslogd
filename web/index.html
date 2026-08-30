@@ -8,16 +8,28 @@
 </head>
 <body>
 <header class="topbar">
-  <h1>Syslog Viewer</h1>
-  <span class="status" id="connStatus">connecting…</span>
+  <span class="title-wrap">
+    <h1>Syslog Viewer</h1>
+    <span class="version-badge" id="versionBadge">–</span>
+    <span class="status" id="connStatus">connecting…</span>
+  </span>
+  <span class="topbar-right">
+    <span class="syslogd-badge" id="syslogdBadge">● syslogd …</span>
+    <select id="themeSelect" title="Theme">
+      <option value="dark">Dark</option>
+      <option value="light">Bright</option>
+      <option value="system" selected>System</option>
+    </select>
+  </span>
 </header>
 
 <main>
   <section class="controls">
     <div class="filter-row">
       <input id="searchText" type="search" placeholder="Search message / host…" autocomplete="off">
-      <select id="filterSeverity" title="Severity"></select>
-      <select id="filterFacility" title="Facility"></select>
+      <div class="msel" id="mselSeverity" title="Severity"></div>
+      <div class="msel" id="mselFacility" title="Facility"></div>
+      <button id="btnReload" type="button" title="Reload the log file">Reload</button>
       <button id="btnClear" type="button" title="Clear the visible list">Clear</button>
       <button id="btnPause" type="button" title="Pause / resume live tail">Pause</button>
     </div>
@@ -26,26 +38,39 @@
       <label class="pin">
         <input id="chkPin" type="checkbox" checked> Pin to newest
       </label>
+      <label class="pagesize">Lines/page
+        <select id="pageSize">
+          <option value="10">10</option>
+          <option value="25">25</option>
+          <option value="50">50</option>
+          <option value="25" selected>25</option>
+          <option value="500">500</option>
+          <option value="all">All</option>
+        </select>
+      </label>
     </div>
   </section>
 
+  <div class="pager" id="pagerTop"></div>
   <section class="table-wrap">
     <table>
       <thead>
         <tr>
           <th class="col-time sortable" data-key="ts">Timestamp</th>
           <th class="col-host sortable" data-key="host">Host</th>
-          <th class="col-facility sortable" data-key="facility">Facility</th>
           <th class="col-severity sortable" data-key="severity">Severity</th>
           <th class="col-msgid sortable" data-key="msgid">MsgID</th>
-          <th class="col-app sortable" data-key="app">App-Name</th>
-          <th class="col-proc sortable" data-key="proc">ProcID</th>
           <th class="col-msg sortable" data-key="msg">Message</th>
+          <th class="col-data sortable" data-key="sd">Data</th>
+          <th class="col-app sortable" data-key="app">App-Name</th>
+          <th class="col-facility sortable" data-key="facility">Facility</th>
+          <th class="col-proc sortable" data-key="proc">ProcessID</th>
         </tr>
       </thead>
       <tbody id="logRows"></tbody>
     </table>
   </section>
+  <div class="pager" id="pagerBottom"></div>
 </main>
 
 <script src="/app.js"></script>
