@@ -131,6 +131,26 @@ thead th {
   z-index: 1;
 }
 
+thead th.sortable { cursor: pointer; user-select: none; }
+thead th.sortable:hover { color: var(--text); }
+thead th.sortable.sorted { color: var(--accent); }
+thead th.sortable::after {
+  content: "";
+  display: inline-block;
+  width: 0;
+  height: 0;
+  margin-left: 6px;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  vertical-align: middle;
+}
+thead th.sortable.sorted.asc::after {
+  border-bottom: 5px solid var(--accent);
+}
+thead th.sortable.sorted.desc::after {
+  border-top: 5px solid var(--accent);
+}
+
 tbody td {
   padding: 7px 12px;
   border-bottom: 1px solid rgba(51, 65, 85, 0.5);
@@ -147,7 +167,15 @@ tr:hover { background: rgba(56, 189, 248, 0.06); }
 .col-msg { width: auto; }
 .col-severity { width: 110px; }
 .col-facility { width: 96px; }
-.col-port { width: 60px; text-align: right; color: var(--text-dim); }
+.col-msgid { width: 90px; }
+.col-app { width: 110px; }
+.col-proc { width: 90px; }
+
+.sd {
+  color: var(--text-dim);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+}
 
 .empty td { text-align: center; color: var(--text-dim); padding: 30px; font-style: italic; }
 

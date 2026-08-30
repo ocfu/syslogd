@@ -6,6 +6,8 @@
   var paused = false;
   var es = null;
   var retryTimer = null;
+  var sortKey = null;
+  var sortAsc = true;
 
   var rowsEl = document.getElementById("logRows");
   var searchEl = document.getElementById("searchText");
@@ -35,14 +37,21 @@
     var tr = document.createElement("tr");
     tr.dataset.facility = e.facility || "";
     tr.dataset.severity = e.severity || "";
-    tr.dataset.text = ((e.host || "") + " " + (e.msg || "")).toLowerCase();
+    tr.dataset.text = ((e.host || "") + " " + (e.app || "") + " " + (e.proc || "") + " " + (e.msgid || "") + " " + (e.msg || "")).toLowerCase();
+    var body = "";
+    if (e.sd && e.sd !== "-") {
+      body = "<span class='sd'>" + esc(e.sd) + "</span> ";
+    }
+    body += esc(e.msg);
     tr.innerHTML =
       "<td class='col-time'>" + esc(e.ts) + "</td>" +
       "<td class='col-host'>" + esc(e.host) + "</td>" +
-      "<td class='col-msg'>" + esc(e.msg) + "</td>" +
-      "<td class='col-severity'><span class='badge " + badgeClass("sev", e.severity) + "'>" + esc(e.severity || "unknown") + "</span></td>" +
       "<td class='col-facility'><span class='badge " + badgeClass("fac", e.facility) + "'>" + esc(e.facility || "unknown") + "</span></td>" +
-      "<td class='col-port'>" + esc(e.port) + "</td>";
+      "<td class='col-severity'><span class='badge " + badgeClass("sev", e.severity) + "'>" + esc(e.severity || "unknown") + "</span></td>" +
+      "<td class='col-msgid'>" + esc(e.msgid) + "</td>" +
+      "<td class='col-app'>" + esc(e.app) + "</td>" +
+      "<td class='col-proc'>" + esc(e.proc) + "</td>" +
+      "<td class='col-msg'>" + body + "</td>";
     return tr;
   }
 
@@ -56,17 +65,34 @@
     if (facilityEl.value && e.facility !== facilityEl.value) return false;
     if (severityEl.value && e.severity !== severityEl.value) return false;
     var q = searchEl.value.trim().toLowerCase();
-    if (q && (e.host || "").toLowerCase().indexOf(q) === -1 &&
-               (e.msg || "").toLowerCase().indexOf(q) === -1) return false;
+    if (q) {
+      var hay = ((e.host || "") + " " + (e.app || "") + " " + (e.proc || "") + " " + (e.msgid || "") + " " + (e.msg || "")).toLowerCase();
+      if (hay.indexOf(q) === -1) return false;
+    }
     return true;
+  }
+
+  function compareEntries(a, b) {
+    var v = 0;
+    if (sortKey === "ts") {
+      v = a.ts < b.ts ? -1 : (a.ts > b.ts ? 1 : 0);
+    } else {
+      var ka = String(a[sortKey] || "").toLowerCase();
+      var kb = String(b[sortKey] || "").toLowerCase();
+      v = ka < kb ? -1 : (ka > kb ? 1 : 0);
+    }
+    return sortAsc ? v : -v;
   }
 
   function render() {
     rowsEl.innerHTML = "";
+    var shown = entries.slice();
+    if (sortKey) shown.sort(compareEntries);
+    else shown.reverse();
     var count = 0;
-    for (var i = entries.length - 1; i >= 0; i--) {
-      if (matches(entries[i])) {
-        rowsEl.appendChild(buildRow(entries[i], i));
+    for (var i = 0; i < shown.length; i++) {
+      if (matches(shown[i])) {
+        rowsEl.appendChild(buildRow(shown[i], i));
         count++;
       }
     }
@@ -74,14 +100,14 @@
     if (!count) {
       var tr = document.createElement("tr");
       tr.className = "empty";
-      tr.innerHTML = "<td colspan='6'>No matching entries</td>";
+      tr.innerHTML = "<td colspan='8'>No matching entries</td>";
       rowsEl.appendChild(tr);
     }
     pinToNewest();
   }
 
   function addEntry(e) {
-    entries.push({ ts: e.ts, host: e.host, port: e.port, facility: e.facility, severity: e.severity, msg: e.msg });
+    entries.push({ ts: e.ts, host: e.host, app: e.app, proc: e.proc, msgid: e.msgid, facility: e.facility, severity: e.severity, sd: e.sd, msg: e.msg });
     if (entries.length > MAX_ROWS) {
       entries.splice(0, entries.length - MAX_ROWS);
     }
@@ -144,6 +170,36 @@
   facilityEl.addEventListener("change", render);
   severityEl.addEventListener("change", render);
 
+  function updateHeaderIndicators() {
+    var ths = document.querySelectorAll("thead th.sortable");
+    for (var i = 0; i < ths.length; i++) {
+      var key = ths[i].getAttribute("data-key");
+      ths[i].className = ths[i].className.replace(/\bsorted\b|\basc\b|\bdesc\b/g, "").trim();
+      if (key === sortKey) ths[i].className += " sorted " + (sortAsc ? "asc" : "desc");
+    }
+  }
+
+  var ths = document.querySelectorAll("thead th.sortable");
+  for (var i = 0; i < ths.length; i++) {
+    ths[i].addEventListener("click", function () {
+      var key = this.getAttribute("data-key");
+      if (sortKey === key) sortAsc = !sortAsc;
+      else { sortKey = key; sortAsc = true; }
+      if (pinEl) pinEl.checked = false;
+      updateHeaderIndicators();
+      render();
+    });
+  }
+
+  pinEl.addEventListener("change", function () {
+    if (pinEl.checked) {
+      sortKey = null;
+      sortAsc = true;
+      updateHeaderIndicators();
+      render();
+    }
+  });
+
   pauseBtn.addEventListener("click", function () {
     paused = !paused;
     pauseBtn.textContent = paused ? "Resume" : "Pause";
@@ -152,10 +208,15 @@
 
   clearBtn.addEventListener("click", function () {
     entries = [];
+    sortKey = null;
+    sortAsc = true;
+    if (pinEl) pinEl.checked = true;
+    updateHeaderIndicators();
     render();
   });
 
   populateFilters();
+  updateHeaderIndicators();
   openStream();
   render();
 })();

@@ -7,9 +7,13 @@
  * Usage: ./syslogd_web [-w webroot]
  *   -w <dir>  Directory containing index.html/style.css/app.js (default: web)
  *
- * Accepts log lines in the format written by syslogd:
- *   YYYY-MM-DD HH:MM:SS [host:port] facility=... severity=... msg=...
+ * Accepts RFC 5424 log lines written by syslogd:
+ *   <PRI>VERSION TIMESTAMP HOSTNAME APP-NAME PROCID MSGID STRUCTURED-DATA MSG
  */
+
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE
+#endif
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -24,6 +28,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <time.h>
 
 #define PORT 8090
 #define LOGFILE "/var/log/custom_syslog.log"
@@ -31,6 +36,18 @@
 #define SSE_INITIAL_LINES 200
 
 static const char *g_szWebRoot = "web";
+
+static const char *g_szFacilities[] = {
+   "kern", "user", "mail", "daemon", "auth", "syslog", "lpr", "news",
+   "uucp", "cron", "authpriv", "ftp", "ntp", "audit", "alert", "at",
+   "local0", "local1", "local2", "local3",
+   "local4", "local5", "local6", "local7"};
+#define NUM_FACILITIES (sizeof(g_szFacilities) / sizeof(g_szFacilities[0]))
+
+static const char *g_szSeverities[] = {
+   "emergency", "alert", "critical", "error",
+   "warning", "notice", "info", "debug"};
+#define NUM_SEVERITIES (sizeof(g_szSeverities) / sizeof(g_szSeverities[0]))
 
 /* ------------------------------------------------------------------ */
 /* Small growable buffer helper                                       */
@@ -165,71 +182,151 @@ static void json_append_escaped(Buffer *pB, const char *pS) {
 typedef struct {
    char szTs[40];
    char szHost[64];
+   char szApp[64];
+   char szProc[64];
+   char szMsgid[64];
    char szFacility[32];
    char szSeverity[32];
+   char szSd[256];
    char szMsg[1024];
-   int nPort;
    int bValid;
 } LogEntry;
 
+/* Parse an RFC 3339 timestamp (as used by RFC 5424) into an epoch (UTC)
+ * and millisecond fraction. Returns 1 on success. */
+static int rfc3339_to_epoch(const char *p, time_t *pEpoch, int *pnMs) {
+   int y, mo, d, h, mi, s;
+   if (sscanf(p, "%4d-%2d-%2dT%2d:%2d:%2d", &y, &mo, &d, &h, &mi, &s) < 6) return 0;
+   if (!p[19]) return 0;
+   const char *q = p + 19;
+   int ms = 0;
+   if (*q == '.') {
+      q++;
+      int nDig = 0;
+      while (nDig < 6 && isdigit((unsigned char)q[nDig])) {
+         if (nDig < 3) ms = ms * 10 + (q[nDig] - '0');
+         nDig++;
+      }
+      q += nDig;
+   }
+   int off = 0;
+   if (*q == 'Z' || *q == 'z') {
+      off = 0;
+   } else if (*q == '+' || *q == '-') {
+      int sign = (*q == '+') ? 1 : -1;
+      q++;
+      int oh = 0, om = 0;
+      if (isdigit((unsigned char)q[0]) && isdigit((unsigned char)q[1]))
+         oh = (q[0] - '0') * 10 + (q[1] - '0');
+      const char *r = q + 2;
+      if (*r == ':') r++;
+      if (isdigit((unsigned char)r[0]) && isdigit((unsigned char)r[1]))
+         om = (r[0] - '0') * 10 + (r[1] - '0');
+      off = sign * (oh * 3600 + om * 60);
+   }
+   struct tm tmUtc;
+   memset(&tmUtc, 0, sizeof(tmUtc));
+   tmUtc.tm_year = y - 1900;
+   tmUtc.tm_mon = mo - 1;
+   tmUtc.tm_mday = d;
+   tmUtc.tm_hour = h;
+   tmUtc.tm_min = mi;
+   tmUtc.tm_sec = s;
+   tmUtc.tm_isdst = 0;
+   time_t t = timegm(&tmUtc);
+   if (t == (time_t)-1) return 0;
+   *pEpoch = t - off;
+   *pnMs = ms;
+   return 1;
+}
+
+/* Format an epoch as human-readable local time with milliseconds. */
+static void format_ts(time_t epoch, int ms, char *out, size_t cap) {
+   struct tm *lt = localtime(&epoch);
+   if (!lt) { snprintf(out, cap, "-"); return; }
+   strftime(out, cap, "%Y-%m-%d %H:%M:%S", lt);
+   size_t n = strlen(out);
+   snprintf(out + n, cap - n, ".%03d", ms);
+}
+
+/* Read the next whitespace-delimited token. Returns its length. */
+static size_t next_token(const char **pp, char *out, size_t cap) {
+   const char *p = *pp;
+   while (isspace((unsigned char)*p)) p++;
+   size_t n = 0;
+   while (*p && !isspace((unsigned char)*p) && n + 1 < cap) out[n++] = *p++;
+   out[n] = '\0';
+   *pp = p;
+   return n;
+}
+
+/* Read structured data (a '-' or one-or-more bounded [SD-ELEMENT]s) into out,
+ * returning the pointer just past it. */
+static const char *capture_structured_data(const char *p, char *out, size_t cap) {
+   while (isspace((unsigned char)*p)) p++;
+   size_t n = 0;
+   if (*p == '-') {
+      out[n++] = '-';
+      out[n] = '\0';
+      return p + 1;
+   }
+   while (*p == '[') {
+      int inQuote = 0;
+      if (n + 1 < cap) out[n++] = *p;
+      p++;
+      while (*p && !(*p == ']' && !inQuote)) {
+         if (n + 1 < cap) out[n++] = *p;
+         if (*p == '"') inQuote = !inQuote;
+         p++;
+      }
+      if (*p == ']') { if (n + 1 < cap) out[n++] = *p; p++; }
+      else break;
+   }
+   out[n] = '\0';
+   return p;
+}
+
 static void parse_log_line(const char *pLine, LogEntry *pE) {
    memset(pE, 0, sizeof(*pE));
-   pE->nPort = 0;
    pE->bValid = 0;
-
    const char *p = pLine;
-   char *pOut = pE->szTs;
-   size_t n = 0;
-   /* Date token "YYYY-MM-DD". */
-   while (*p && *p != ' ' && n + 1 < sizeof(pE->szTs)) pOut[n++] = *p++;
-   if (n == 0 || *p != ' ') return;
-   /* Time token "HH:MM:SS", kept as part of the full timestamp. */
-   if (n + 1 < sizeof(pE->szTs)) pOut[n++] = ' ';
-   p++;
-   while (*p && !isspace((unsigned char)*p) && n + 1 < sizeof(pE->szTs)) pOut[n++] = *p++;
-   pE->szTs[n] = '\0';
-   while (*p && isspace((unsigned char)*p)) p++;
 
-   /* Expect '[' host ':' port ']'. Host may be space-padded. */
-   if (*p != '[') return;
+   /* <PRI> */
+   if (*p != '<') return;
+   int pri = 0;
    p++;
-   size_t nHost = 0;
-   while (*p && *p != ':' && nHost + 1 < sizeof(pE->szHost)) {
-      pE->szHost[nHost++] = *p++;
+   while (isdigit((unsigned char)*p)) { pri = pri * 10 + (*p - '0'); p++; }
+   if (*p != '>') return;
+   p++;
+   int fac = pri / 8;
+   int sev = pri % 8;
+   if (fac >= 0 && fac < (int)NUM_FACILITIES) strcpy(pE->szFacility, g_szFacilities[fac]);
+   else strcpy(pE->szFacility, "unknown");
+   if (sev >= 0 && sev < (int)NUM_SEVERITIES) strcpy(pE->szSeverity, g_szSeverities[sev]);
+   else strcpy(pE->szSeverity, "unknown");
+
+   /* VERSION TIMESTAMP HOSTNAME APP-NAME PROCID MSGID */
+   char tok[64];
+   if (next_token(&p, tok, sizeof(tok)) == 0) return;
+   if (next_token(&p, tok, sizeof(tok)) == 0) return;
+   if (strcmp(tok, "-") == 0) {
+      strcpy(pE->szTs, "-");
+   } else {
+      time_t epoch;
+      int ms;
+      if (rfc3339_to_epoch(tok, &epoch, &ms)) format_ts(epoch, ms, pE->szTs, sizeof(pE->szTs));
+      else strncpy(pE->szTs, tok, sizeof(pE->szTs) - 1);
    }
-   pE->szHost[nHost] = '\0';
-   /* Trim trailing spaces from the padded host column. */
-   while (nHost > 0 && pE->szHost[nHost - 1] == ' ') pE->szHost[--nHost] = '\0';
+   if (next_token(&p, pE->szHost, sizeof(pE->szHost)) == 0) return;
+   if (next_token(&p, pE->szApp, sizeof(pE->szApp)) == 0) return;
+   if (next_token(&p, pE->szProc, sizeof(pE->szProc)) == 0) return;
+   if (next_token(&p, pE->szMsgid, sizeof(pE->szMsgid)) == 0) return;
 
-   if (*p != ':') return;
-   p++;
-   long nPort = 0;
-   while (*p && isdigit((unsigned char)*p)) { nPort = nPort * 10 + (*p - '0'); p++; }
-   if (*p != ']') return;
-   pE->nPort = (int)nPort;
-   p++;
-
-   /* facility=... severity=... msg=... */
-   char *pCur = (char *)p;
-   while (*pCur && *pCur != 'f') pCur++; /* skip up to "facility" or fail */
-   if (strncmp(pCur, "facility=", 9) != 0) return;
-   pCur += 9;
-   size_t nF = 0;
-   while (*pCur && !isspace((unsigned char)*pCur) && nF + 1 < sizeof(pE->szFacility)) pE->szFacility[nF++] = *pCur++;
-   pE->szFacility[nF] = '\0';
-
-   while (*pCur && isspace((unsigned char)*pCur)) pCur++;
-   if (strncmp(pCur, "severity=", 9) != 0) return;
-   pCur += 9;
-   size_t nS = 0;
-   while (*pCur && !isspace((unsigned char)*pCur) && nS + 1 < sizeof(pE->szSeverity)) pE->szSeverity[nS++] = *pCur++;
-   pE->szSeverity[nS] = '\0';
-
-   while (*pCur && isspace((unsigned char)*pCur)) pCur++;
-   if (strncmp(pCur, "msg=", 4) != 0) return;
-   pCur += 4;
+   /* STRUCTURED-DATA then MSG (rest of line). */
+   p = capture_structured_data(p, pE->szSd, sizeof(pE->szSd));
+   while (isspace((unsigned char)*p)) p++;
    size_t nM = 0;
-   while (*pCur && *pCur != '\r' && *pCur != '\n' && nM + 1 < sizeof(pE->szMsg)) pE->szMsg[nM++] = *pCur++;
+   while (*p && *p != '\r' && *p != '\n' && nM + 1 < sizeof(pE->szMsg)) pE->szMsg[nM++] = *p++;
    pE->szMsg[nM] = '\0';
 
    pE->bValid = 1;
@@ -241,10 +338,18 @@ static void build_entry_json(Buffer *pB, LogEntry *pe) {
    json_append_escaped(pB, pe->szTs);
    buff_appendf(pB, "\",\"host\":\"");
    json_append_escaped(pB, pe->szHost);
-   buff_appendf(pB, "\",\"port\":%d,\"facility\":\"", pe->nPort);
+   buff_appendf(pB, "\",\"app\":\"");
+   json_append_escaped(pB, pe->szApp);
+   buff_appendf(pB, "\",\"proc\":\"");
+   json_append_escaped(pB, pe->szProc);
+   buff_appendf(pB, "\",\"msgid\":\"");
+   json_append_escaped(pB, pe->szMsgid);
+   buff_appendf(pB, "\",\"facility\":\"");
    json_append_escaped(pB, pe->szFacility);
    buff_appendf(pB, "\",\"severity\":\"");
    json_append_escaped(pB, pe->szSeverity);
+   buff_appendf(pB, "\",\"sd\":\"");
+   json_append_escaped(pB, pe->szSd);
    buff_appendf(pB, "\",\"msg\":\"");
    json_append_escaped(pB, pe->szMsg);
    buff_appendf(pB, "\"}");

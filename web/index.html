@@ -33,12 +33,14 @@
     <table>
       <thead>
         <tr>
-          <th class="col-time">Timestamp</th>
-          <th class="col-host">Host</th>
-          <th class="col-msg">Message</th>
-          <th class="col-severity">Severity</th>
-          <th class="col-facility">Facility</th>
-          <th class="col-port">Port</th>
+          <th class="col-time sortable" data-key="ts">Timestamp</th>
+          <th class="col-host sortable" data-key="host">Host</th>
+          <th class="col-facility sortable" data-key="facility">Facility</th>
+          <th class="col-severity sortable" data-key="severity">Severity</th>
+          <th class="col-msgid sortable" data-key="msgid">MsgID</th>
+          <th class="col-app sortable" data-key="app">App-Name</th>
+          <th class="col-proc sortable" data-key="proc">ProcID</th>
+          <th class="col-msg sortable" data-key="msg">Message</th>
         </tr>
       </thead>
       <tbody id="logRows"></tbody>

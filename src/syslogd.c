@@ -21,6 +21,7 @@
 #include <string.h>
 #include <sys/socket.h>
 #include <sys/stat.h>
+#include <sys/time.h>
 #include <sys/types.h>
 #include <syslog.h>
 #include <time.h>
@@ -81,7 +82,7 @@ void rotate_log_if_needed(const char *filename) {
    }
 }
 
-void write_log(const char *fac, const char *sev, const char *msg,
+void write_log(int pri, const char *msg,
                const struct sockaddr_in *client) {
    FILE *f;
 
@@ -93,13 +94,16 @@ void write_log(const char *fac, const char *sev, const char *msg,
       return;
    }
 
-   time_t now = time(NULL);
+   // RFC 3339 timestamp in UTC with milliseconds.
+   struct timeval tv;
+   gettimeofday(&tv, NULL);
    char timestr[64];
-   strftime(timestr, sizeof(timestr), "%Y-%m-%d %H:%M:%S", localtime(&now));
+   strftime(timestr, sizeof(timestr), "%Y-%m-%dT%H:%M:%S", gmtime(&tv.tv_sec));
+   size_t nTs = strlen(timestr);
+   snprintf(timestr + nTs, sizeof(timestr) - nTs, ".%03ldZ", (long)(tv.tv_usec / 1000));
 
-   // Resolve hostname
+   // Resolve hostname (RFC 5424 HOSTNAME, no padding).
    char host[NI_MAXHOST];
-   int port = ntohs(client->sin_port);
    int res = getnameinfo((struct sockaddr *)client, sizeof(*client),
                          host, sizeof(host), NULL, 0, NI_NAMEREQD);
    if (res != 0) {
@@ -107,36 +111,33 @@ void write_log(const char *fac, const char *sev, const char *msg,
       strncpy(host, inet_ntoa(client->sin_addr), sizeof(host));
       host[sizeof(host) - 1] = '\0';
    } else {
-      // Only use the first part of the domain, limit to 15 chars
-      char short_host[16] = {0};
-      char *dot = strchr(host, '.');
-      if (dot) {
-         size_t len = dot - host;
-         if (len > 15) len = 15;
-         strncpy(short_host, host, len);
-         short_host[len] = '\0';
-      } else {
-         strncpy(short_host, host, 15);
-         short_host[15] = '\0';
-      }
+      // Only use the first part of the domain, limit to the host label
+      char short_host[256];
+      snprintf(short_host, sizeof(short_host), "%s", host);
+      char *dot = strchr(short_host, '.');
+      if (dot) *dot = '\0';
       strncpy(host, short_host, sizeof(host));
       host[sizeof(host) - 1] = '\0';
    }
 
-   // Ensure fixed column width (max 15 chars for host)
-   char host_col[16];
-   snprintf(host_col, sizeof(host_col), "%-15s", host);
+   // Sanitize the message: RFC 5424 MSG may not contain the line separator
+   // used by the log writer (we write one line per message).
+   char clean[BUFFER_SIZE];
+   size_t nClean = 0;
+   for (const char *p = msg; *p && nClean + 1 < sizeof(clean); p++) {
+      if (*p == '\r' || *p == '\n') clean[nClean++] = ' ';
+      else clean[nClean++] = *p;
+   }
+   clean[nClean] = '\0';
 
-   fprintf(f, "%s [%s:%d] facility=%s severity=%s msg=%s\n",
-           timestr,
-           host_col,
-           port,
-           fac, sev, msg);
+   // RFC 5424: <PRI>VERSION TIMESTAMP HOSTNAME APP-NAME PROCID MSGID SD MSG
+   fprintf(f, "<%d>1 %s %s - - - - %s\n",
+           pri, timestr, host, clean);
 
    fclose(f);
 }
 
-void parse_syslog_message(const char *msg, char *out_fac, char *out_sev, char *out_text) {
+void parse_syslog_message(const char *msg, char *out_fac, char *out_sev, int *out_pri, char *out_text) {
    int pri = -1;
    const char *p = msg;
 
@@ -161,6 +162,7 @@ void parse_syslog_message(const char *msg, char *out_fac, char *out_sev, char *o
             strcpy(out_sev, "unknown");
          }
 
+         *out_pri = pri;
          strncpy(out_text, p, BUFFER_SIZE - 1);
          out_text[BUFFER_SIZE - 1] = '\0';
          return;
@@ -169,6 +171,7 @@ void parse_syslog_message(const char *msg, char *out_fac, char *out_sev, char *o
 
    strcpy(out_fac, "unknown");
    strcpy(out_sev, "unknown");
+   *out_pri = -1;
    strncpy(out_text, msg, BUFFER_SIZE - 1);
    out_text[BUFFER_SIZE - 1] = '\0';
 }
@@ -276,9 +279,10 @@ int main(int argc, char *argv[]) {
       buffer[len] = '\0';
 
       char fac[32], sev[32], text[BUFFER_SIZE];
-      parse_syslog_message(buffer, fac, sev, text);
+      int pri;
+      parse_syslog_message(buffer, fac, sev, &pri, text);
 
-      write_log(fac, sev, text, &client_addr);
+      write_log(pri, text, &client_addr);
 
       if (!run_as_daemon) {  // Print to stdout in foreground mode
          printf("[%s:%d] %s.%s: %s\n",
