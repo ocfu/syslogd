@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Syslog Viewer</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<header class="topbar">
+  <h1>Syslog Viewer</h1>
+  <span class="status" id="connStatus">connecting…</span>
+</header>
+
+<main>
+  <section class="controls">
+    <div class="filter-row">
+      <input id="searchText" type="search" placeholder="Search message / host…" autocomplete="off">
+      <select id="filterFacility" title="Facility"></select>
+      <select id="filterSeverity" title="Severity"></select>
+      <button id="btnClear" type="button" title="Clear the visible list">Clear</button>
+      <button id="btnPause" type="button" title="Pause / resume live tail">Pause</button>
+    </div>
+    <div class="meta-row">
+      <span id="entryCount">0 entries</span>
+      <label class="pin">
+        <input id="chkPin" type="checkbox" checked> Pin to newest
+      </label>
+    </div>
+  </section>
+
+  <section class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th class="col-time">Timestamp</th>
+          <th class="col-host">Host</th>
+          <th class="col-port">Port</th>
+          <th class="col-facility">Facility</th>
+          <th class="col-severity">Severity</th>
+          <th class="col-msg">Message</th>
+        </tr>
+      </thead>
+      <tbody id="logRows"></tbody>
+    </table>
+  </section>
+</main>
+
+<script src="/app.js"></script>
+</body>
+</html>
