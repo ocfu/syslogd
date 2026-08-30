@@ -89,6 +89,7 @@ int main(void) {
     }
 
     printf("Syslog web server running on http://localhost:%d/\n", PORT);
+    fflush(stdout);
 
     while (1) {
         int client_fd = accept(server_fd, NULL, NULL);
