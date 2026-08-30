@@ -3,6 +3,8 @@
 #include <string.h>
 #include <unistd.h>
 #include <arpa/inet.h>
+#include <netinet/in.h>
+#include <sys/socket.h>
 
 #define PORT 8090
 #define LOGFILE "/var/log/custom_syslog.log"
@@ -42,23 +44,43 @@ void send_response(int client_fd) {
 }
 
 int main(void) {
-    int server_fd = socket(AF_INET, SOCK_STREAM, 0);
-    if (server_fd < 0) {
-        perror("socket");
-        exit(1);
-    }
-
     int opt = 1;
-    setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
+    int bDualStack = 0;
 
-    struct sockaddr_in addr;
-    addr.sin_family = AF_INET;
-    addr.sin_addr.s_addr = INADDR_ANY;
-    addr.sin_port = htons(PORT);
+    // Try dual-stack first: an IPv6 socket with IPV6_V6ONLY=0 accepts both IPv6
+    // and IPv4-mapped connections. Fall back to a plain IPv4 socket when IPv6
+    // is unavailable on the platform.
+    int server_fd = socket(AF_INET6, SOCK_STREAM, 0);
+    if (server_fd >= 0) {
+        setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
+        setsockopt(server_fd, IPPROTO_IPV6, IPV6_V6ONLY, &bDualStack, sizeof(bDualStack));
 
-    if (bind(server_fd, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
-        perror("bind");
-        exit(1);
+        struct sockaddr_in6 addr6;
+        addr6.sin6_family = AF_INET6;
+        addr6.sin6_addr = in6addr_any;
+        addr6.sin6_port = htons(PORT);
+
+        if (bind(server_fd, (struct sockaddr *)&addr6, sizeof(addr6)) < 0) {
+            perror("bind");
+            exit(1);
+        }
+    } else {
+        server_fd = socket(AF_INET, SOCK_STREAM, 0);
+        if (server_fd < 0) {
+            perror("socket");
+            exit(1);
+        }
+        setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
+
+        struct sockaddr_in addr;
+        addr.sin_family = AF_INET;
+        addr.sin_addr.s_addr = INADDR_ANY;
+        addr.sin_port = htons(PORT);
+
+        if (bind(server_fd, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
+            perror("bind");
+            exit(1);
+        }
     }
 
     if (listen(server_fd, 10) < 0) {
