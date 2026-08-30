@@ -13,9 +13,40 @@ void send_response(int client_fd) {
     FILE *f = fopen(LOGFILE, "r");
     char line[1024];
 
-    dprintf(client_fd,
-        "HTTP/1.1 200 OK\r\n"
-        "Content-Type: text/html\r\n\r\n"
+    // Build the full HTML body in memory first so we can send a correct
+    // Content-Length header (required for browsers to accept the response).
+    size_t body_cap = 8192;
+    size_t body_len = 0;
+    char *body = malloc(body_cap);
+    if (!body) {
+        close(client_fd);
+        return;
+    }
+
+#define BODY_APPEND(...) \
+    do { \
+        int _need = snprintf(NULL, 0, __VA_ARGS__); \
+        if (_need < 0) { \
+            free(body); \
+            close(client_fd); \
+            return; \
+        } \
+        if (body_len + (size_t)_need + 1 > body_cap) { \
+            size_t _new_cap = body_len + (size_t)_need + 1; \
+            char *_tmp = realloc(body, _new_cap); \
+            if (!_tmp) { \
+                free(body); \
+                close(client_fd); \
+                return; \
+            } \
+            body = _tmp; \
+            body_cap = _new_cap; \
+        } \
+        snprintf(body + body_len, body_cap - body_len, __VA_ARGS__); \
+        body_len += (size_t)_need; \
+    } while (0)
+
+    BODY_APPEND(
         "<html><head><title>Syslog Viewer</title></head><body>"
         "<h2>Syslog Log File</h2>"
         "<table border='1' cellpadding='4' cellspacing='0'>"
@@ -30,17 +61,28 @@ void send_response(int client_fd) {
             int port;
             if (sscanf(line, "%31s %*s [%31[^]:]:%d] facility=%31s severity=%31s msg=%899[^\n]",
                        ts, host, &port, facility, severity, msg) == 6) {
-                dprintf(client_fd,
+                BODY_APPEND(
                     "<tr><td>%s</td><td>%s</td><td>%d</td><td>%s</td><td>%s</td><td>%s</td></tr>",
                     ts, host, port, facility, severity, msg);
             }
         }
         fclose(f);
     } else {
-        dprintf(client_fd, "<tr><td colspan='6'>Log file not found.</td></tr>");
+        BODY_APPEND("<tr><td colspan='6'>Log file not found.</td></tr>");
     }
 
-    dprintf(client_fd, "</table></body></html>");
+    BODY_APPEND("</table></body></html>");
+
+    dprintf(client_fd,
+        "HTTP/1.1 200 OK\r\n"
+        "Content-Type: text/html\r\n"
+        "Content-Length: %zu\r\n"
+        "Connection: close\r\n"
+        "\r\n", body_len);
+    dprintf(client_fd, "%s", body);
+
+    free(body);
+#undef BODY_APPEND
 }
 
 int main(void) {
@@ -96,6 +138,7 @@ int main(void) {
         if (client_fd < 0) continue;
 
         send_response(client_fd);
+        shutdown(client_fd, SHUT_WR);
         close(client_fd);
     }
 
