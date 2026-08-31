@@ -1,6 +1,10 @@
 (function () {
   "use strict";
 
+  /* When the viewer is served under /demo every API call is prefixed with it,
+   * so the server routes to the bundled sample log instead of the live file. */
+  var API_BASE = (location.pathname.indexOf("/demo") === 0) ? "/demo" : "";
+
   var MAX_ROWS = 2000;
   var HIGHLIGHT_MS = 1000;
   var BAR_HIGHLIGHT_MS = 5000;
@@ -27,6 +31,7 @@
   var themeSelect = document.getElementById("themeSelect");
   var versionBadge = document.getElementById("versionBadge");
   var syslogdBadge = document.getElementById("syslogdBadge");
+  var tsTzLabel = document.getElementById("tsTzLabel");
 
   var FACILITIES = ["kern","user","mail","daemon","auth","syslog","lpr","news","uucp","cron","authpriv","ftp","ntp","audit","alert","at","local0","local1","local2","local3","local4","local5","local6","local7"];
   var SEVERITIES = ["emergency","alert","critical","error","warning","notice","info","debug"];
@@ -155,7 +160,7 @@
     if (rowClass) tr.className = rowClass;
     var sd = (e.sd && e.sd !== "-") ? "<span class='sd'>" + esc(e.sd) + "</span>" : "";
     tr.innerHTML =
-      "<td class='col-time'>" + esc(e.ts) + "</td>" +
+      "<td class='col-time'>" + esc(e.tsLocal != null ? e.tsLocal : e.ts) + "</td>" +
       "<td class='col-host'>" + esc(e.host) + "</td>" +
       "<td class='col-severity'><span class='badge " + badgeClass("sev", e.severity) + "'>" + esc(e.severity || "unknown") + "</span></td>" +
       "<td class='col-msgid'>" + esc(e.msgid) + "</td>" +
@@ -330,7 +335,16 @@
   }
 
   function normalizeEntry(e) {
-    return { ts: e.ts, host: e.host, app: e.app, proc: e.proc, msgid: e.msgid, facility: e.facility, severity: e.severity, sd: e.sd, msg: e.msg };
+    var tsLocal = e.ts;
+    var d = new Date(e.ts);
+    if (!isNaN(d.getTime())) {
+      var p = function (n) { return (n < 10 ? "0" : "") + n; };
+      var ms = d.getMilliseconds();
+      tsLocal = d.getFullYear() + "-" + p(d.getMonth() + 1) + "-" + p(d.getDate()) +
+        " " + p(d.getHours()) + ":" + p(d.getMinutes()) + ":" + p(d.getSeconds()) +
+        "." + (ms < 10 ? "00" : ms < 100 ? "0" : "") + ms;
+    }
+    return { ts: e.ts, tsLocal: tsLocal, host: e.host, app: e.app, proc: e.proc, msgid: e.msgid, facility: e.facility, severity: e.severity, sd: e.sd, msg: e.msg };
   }
 
   function addEntry(e) {
@@ -368,7 +382,7 @@
 
   function openStream() {
     if (es) es.close();
-    es = new EventSource("/api/stream");
+    es = new EventSource(API_BASE + "/api/stream");
     es.onopen = function () { setConn("live"); };
     es.onerror = function () {
       setConn("off");
@@ -427,7 +441,7 @@
   });
 
   reloadBtn.addEventListener("click", function () {
-    fetch("/api/log?limit=2000")
+    fetch(API_BASE + "/api/log?limit=2000")
       .then(function (r) {
         if (!r.ok) throw new Error("reload failed");
         return r.json();
@@ -484,20 +498,25 @@
   themeSelect.addEventListener("change", function () { applyTheme(themeSelect.value); });
 
   /* Show the web viewer version next to the title. */
-  fetch("/api/version")
+  fetch(API_BASE + "/api/version")
     .then(function (r) { return r.json(); })
     .then(function (v) {
       if (v && v.version) versionBadge.textContent = "v" + v.version;
     })
     .catch(function () { /* ignore */ });
 
+  /* Show the browser time zone id next to the Timestamp column header. */
+  var tz = "local";
+  try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone || "local"; } catch (e) { /* ignore */ }
+  if (tsTzLabel) tsTzLabel.textContent = "(" + tz + ")";
+
   /* Show the syslogd server status + version. */
   function refreshSyslogdStatus() {
-    fetch("/api/status")
+    fetch(API_BASE + "/api/status")
       .then(function (r) { return r.json(); })
       .then(function (s) {
         if (s && s.online) {
-          syslogdBadge.textContent = "● syslogd v" + (s.version && s.version !== "-" ? s.version : "?") + " online";
+          syslogdBadge.textContent = "● syslogd online";
           syslogdBadge.className = "syslogd-badge online";
         } else {
           syslogdBadge.textContent = "● syslogd offline";

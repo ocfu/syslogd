@@ -1,13 +1,16 @@
 # Usage
 
-The project ships three binaries, all built into `build/`.
+The project ships three binaries, all built into `build/`. Their version comes
+from the single `SYSLOGD_VERSION` in `src/version.h`; each binary prints it
+with `-V`.
 
 ## syslogd — the server
 
-Listen for UDP syslog messages and append them to a log file.
+Listen for UDP syslog messages and append them to a log file in RFC 5424
+format.
 
 ```
-Usage: ./build/syslogd [-p port] [-l logfile] [-d]
+Usage: ./build/syslogd [-p port] [-l logfile] [-d] [-V]
 ```
 
 | Option | Description | Default |
@@ -15,6 +18,7 @@ Usage: ./build/syslogd [-p port] [-l logfile] [-d]
 | `-p <port>` | UDP port to listen on | `514` |
 | `-l <logfile>` | Path to the log file | `/var/log/custom_syslog.log` |
 | `-d` | Run as a daemon (foreground by default) | off |
+| `-V` | Print version and exit | — |
 
 Notes:
 
@@ -22,24 +26,37 @@ Notes:
   such as `5514` for testing.
 - In daemon mode the server writes its PID to
   `/var/run/custom_syslog.pid` and removes it on shutdown.
+- On startup the server unconditionally writes a status file
+  `/var/run/custom_syslog.status` (`version=`, `pid=`, `port=`, `logfile=`)
+  and removes it on shutdown. The web viewer reads it for `/api/status`.
 - The log file rotates automatically once it reaches 5 MB: the current file is
   renamed to `<logfile>.<YYYYMMDD_HHMMSS>` and a new one is started.
-- SIGINT and SIGTERM trigger a clean shutdown (remove the PID file, close the
-  socket, close syslog).
+- SIGINT and SIGTERM trigger a clean shutdown (remove the PID/status file,
+  close the socket, close syslog).
 
-### Output format
+### Log format (RFC 5424)
 
-Each message is appended to the log file as one line:
+Each message is appended to the log file as one RFC 5424 line:
 
 ```
-YYYY-MM-DD HH:MM:SS [host:port] facility=<facility> severity=<severity> msg=<message>
+<PRI>VERSION TIMESTAMP HOSTNAME APP-NAME PROCID MSGID STRUCTURED-DATA MSG
 ```
 
-- `host` is the sender's short hostname when it resolves, otherwise the IP
-  address, left-aligned in a 15-character column.
-- `facility` and `severity` are decoded from the message's PRI prefix (`<N>`),
-  e.g. `<134>` → facility `local0`, severity `info`. Unknown values become
-  `unknown`.
+Example (wrapped form of `<134>hello world`):
+
+```
+<134>1 2026-08-30T12:00:01.003Z myhost - - - - hello world
+```
+
+- `TIMESTAMP` is UTC RFC 3339 with milliseconds (`.003Z`).
+- Messages that already are a complete RFC 5424 message (a `<PRI>1` header)
+  are written through **unchanged**, preserving their own
+  TIMESTAMP/HOSTNAME/APP-NAME/PROCID/MSGID/SD/MSG. Simple `<PRI>msg` messages
+  are wrapped: the receive time, the sender's short hostname, and `- - - -`
+  for the RFC 5424 fields.
+- `facility` and `severity` are decoded from the message's PRI prefix
+  (`<N>`), e.g. `<134>` → facility `local0`, severity `info`. Unknown values
+  become `unknown`.
 - In foreground mode each received message is also printed to stdout in the
   form `[ip:port] facility.severity: message`.
 
@@ -55,7 +72,7 @@ YYYY-MM-DD HH:MM:SS [host:port] facility=<facility> severity=<severity> msg=<mes
 Send a single syslog message over UDP.
 
 ```
-Usage: ./build/syslogd_client [-p port] [-f facility] [-s severity] <server_ip> <message>
+Usage: ./build/syslogd_client [-p port] [-f facility] [-s severity] <server_ip> <message> [-V]
 ```
 
 | Option | Description | Default |
@@ -63,6 +80,7 @@ Usage: ./build/syslogd_client [-p port] [-f facility] [-s severity] <server_ip> 
 | `-p <port>` | Destination UDP port | `514` |
 | `-f <facility>` | Facility name (`kern`, `user`, `mail`, `daemon`, `auth`, `syslog`, `lpr`, `news`, `uucp`, `cron`, `authpriv`, `ftp`, `ntp`, `audit`, `alert`, `at`, `local0`…`local7`) | `user` |
 | `-s <severity>` | Severity name (`emergency`…`debug`) | `info` |
+| `-V` | Print version and exit | — |
 
 Example:
 
@@ -85,13 +103,40 @@ severity) and prints the effective PRI value as part of its confirmation.
 Serve the log file as an HTML table over HTTP on port 8090.
 
 ```
-./build/syslogd_web
+Usage: ./build/syslogd_web [-w webroot] [-V]
+```
+
+| Option | Description | Default |
+| ------ | ----------- | ------- |
+| `-w <dir>` | Directory with `index.html`/`style.css`/`app.js` | `web` |
+| `-V` | Print version and exit | — |
+
+```
+./build/syslogd_web -w ../web
 # open http://localhost:8090/
 ```
 
 The viewer reads `/var/log/custom_syslog.log` (compile-time default). Start
 the server with `-l /var/log/custom_syslog.log` so the viewer finds its data.
-Columns: Timestamp, Host, Port, Facility, Severity, Message.
+Table columns: Timestamp (browser-local, with the time-zone id in the header),
+Host, Severity, MsgID, Message, Data (structured data), App-Name, Facility,
+ProcessID.
+
+Features: search box, multi-select severity/facility filters, pagination
+(Lines/page, "All"), dark/light/system theme, Reload/Clear/Pause, and a "Pin
+to newest" live tail that highlights freshly arrived rows (grey line glow for
+1 s plus a left bar for 5 s). A live-connection indicator and a `syslogd`
+online/offline badge are shown in the header.
+
+### API (all GET)
+
+| Endpoint | Response |
+| -------- | -------- |
+| `/api/log?limit=N` | JSON array of the newest N lines (newest first; default 500, max 512 kept). Each entry: timestamp (UTC RFC 3339 with ms), host, app, proc, msgid, facility, severity, sd, msg. |
+| `/api/stream` | Server-Sent Events. Initial event = snapshot of the newest lines (200 live / 512 demo), then every 500 ms a poll appends newly written lines as individual events. Handles log rotation. |
+| `/api/version` | `{"name":"syslogd_web","version":"0.0.2"}` |
+| `/api/status` | `{"name":"syslogd","online":true\|false,"version":"…","pid":…}` from the status file; liveness via `kill(pid,0)` (`EPERM` counts as online). |
+| `/demo`, `/demo/*` | The same viewer and API, but every API call reads `web/sample-500.log` (the bundled demo log) instead of `LOGFILE`. No button in the UI; reached by URL only. |
 
 ### Exit codes
 
@@ -99,14 +144,32 @@ Columns: Timestamp, Host, Port, Facility, Severity, Message.
 | ---- | ------- |
 | 1    | Socket, bind, or listen failure |
 
+## Demo log
+
+`web/sample-500.log` (also mirrored at the repo root) contains 500 RFC 5424
+lines: severity distribution info=375, debug=50, alert=10, critical=15,
+warning=20, notice=15, error=12, emergency=3, with timestamps spread over 10
+hours and typical clients (web/db/dns/mail/backup servers, router/switch/NAS,
+Raspberry Pis, sensors). It is shown by the `/demo` page of `syslogd_web`.
+
 ## Manual test
 
 ```
 make debug
 ./build/syslogd -p 5514 -l /tmp/custom_syslog.log &
-./build/syslogd_client -p 5514 127.0.0.1 "hello world from client"
-./build/syslogd_web &
+./build/syslogd_client -p 5514 -f local0 -s info 127.0.0.1 "hello world from client"
+./build/syslogd_web -w web &
 # check http://localhost:8090/ and /tmp/custom_syslog.log
+```
+
+Web viewer checks:
+
+```
+curl -s http://127.0.0.1:8090/api/version
+curl -s http://127.0.0.1:8090/api/status
+curl -s "http://127.0.0.1:8090/api/log?limit=3"
+curl -s --max-time 3 -N http://127.0.0.1:8090/api/stream   # SSE
+curl -s http://127.0.0.1:8090/demo                          # demo page
 ```
 
 `sample.txt` contains two ready-made syslog messages to reuse as the client's

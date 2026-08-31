@@ -7,6 +7,7 @@
   --text-dim: #94a3b8;
   --accent: #38bdf8;
   --badge-bg: #334155;
+  --live: #4ade80;
 }
 
 /* Bright theme */
@@ -19,6 +20,7 @@ body[data-theme="light"] {
   --text-dim: #64748b;
   --accent: #0284c7;
   --badge-bg: #cbd5e1;
+  --live: #16a34a;
 }
 
 /* Follow system: react to the OS color scheme (default dark) */
@@ -33,6 +35,7 @@ body[data-theme="system"] { /* default = dark via :root */ }
     --text-dim: #64748b;
     --accent: #0284c7;
     --badge-bg: #cbd5e1;
+    --live: #16a34a;
   }
 }
 
@@ -98,7 +101,7 @@ body {
   border-radius: 999px;
   background: var(--badge-bg);
 }
-.status.live { color: #4ade80; }
+.status.live { color: var(--live); }
 .status.off { color: #f87171; }
 .status.paused { color: #facc15; }
 
@@ -109,7 +112,7 @@ body {
   border-radius: 999px;
   background: var(--badge-bg);
 }
-.syslogd-badge.online { color: #4ade80; }
+.syslogd-badge.online { color: var(--live); }
 .syslogd-badge.offline { color: #f87171; }
 
 main {

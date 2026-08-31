@@ -4,8 +4,9 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 
+#include "version.h"
+
 #define DEFAULT_PORT 514
-#define SYSLOGD_CLIENT_VERSION "0.0.1"
 
 const char *facility_names[] = {
     "kern", "user", "mail", "daemon", "auth", "syslog", "lpr", "news",
@@ -46,7 +47,7 @@ int main(int argc, char *argv[]) {
     while ((opt = getopt(argc, argv, "p:f:s:V")) != -1) {
         switch (opt) {
             case 'V':
-                printf("syslogd_client %s\n", SYSLOGD_CLIENT_VERSION);
+                printf("syslogd_client %s\n", SYSLOGD_VERSION);
                 return 0;
             case 'p':
                 port = atoi(optarg);
