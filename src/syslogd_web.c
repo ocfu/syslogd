@@ -30,14 +30,21 @@
 #include <arpa/inet.h>
 #include <time.h>
 
+#include "version.h"
+
 #define PORT 8090
 #define LOGFILE "/var/log/custom_syslog.log"
+#define DEMO_LOGFILE "sample-500.log"
 #define SSE_POLL_MS 500
 #define SSE_INITIAL_LINES 200
-#define SYSLOGD_WEB_VERSION "0.0.1"
+#define DEMO_INITIAL_LINES 512
 #define SYSLOGD_STATUS_FILE "/var/run/custom_syslog.status"
 
 static const char *g_szWebRoot = "web";
+static char g_szDemoLog[1024];
+/* Which log file the API handlers read. Per-connection (server forks per
+ * connection), so set at the top of handle_connection(). */
+static const char *g_pLogFile = LOGFILE;
 
 static const char *g_szFacilities[] = {
    "kern", "user", "mail", "daemon", "auth", "syslog", "lpr", "news",
@@ -242,13 +249,14 @@ static int rfc3339_to_epoch(const char *p, time_t *pEpoch, int *pnMs) {
    return 1;
 }
 
-/* Format an epoch as human-readable local time with milliseconds. */
+/* Format an epoch as an UTC RFC 3339 timestamp with milliseconds (e.g.
+ * 2026-08-30T21:17:47.874Z); browsers convert it to their local time. */
 static void format_ts(time_t epoch, int ms, char *out, size_t cap) {
-   struct tm *lt = localtime(&epoch);
-   if (!lt) { snprintf(out, cap, "-"); return; }
-   strftime(out, cap, "%Y-%m-%d %H:%M:%S", lt);
+   struct tm *g = gmtime(&epoch);
+   if (!g) { snprintf(out, cap, "-"); return; }
+   strftime(out, cap, "%Y-%m-%dT%H:%M:%S", g);
    size_t n = strlen(out);
-   snprintf(out + n, cap - n, ".%03d", ms);
+   snprintf(out + n, cap - n, ".%03dZ", ms);
 }
 
 /* Read the next whitespace-delimited token. Returns its length. */
@@ -361,7 +369,7 @@ static void build_entry_json(Buffer *pB, LogEntry *pe) {
 static int api_log(int nFd, long nLimit) {
    if (nLimit <= 0) nLimit = 500;
 
-   FILE *f = fopen(LOGFILE, "r");
+   FILE *f = fopen(g_pLogFile, "r");
    if (!f) {
       send_head(nFd, "200 OK", "application/json", NULL, 2);
       dprintf(nFd, "[]");
@@ -413,7 +421,7 @@ static void get_file_size_offset(FILE *f, long *pnSize) {
 
 static int api_stream(int nFd) {
    /* Initial snapshot: newest N lines as one event. */
-   FILE *f = fopen(LOGFILE, "r");
+   FILE *f = fopen(g_pLogFile, "r");
    long nStartPos = 0;
    Buffer body;
    buff_init(&body);
@@ -432,25 +440,29 @@ static int api_stream(int nFd) {
          size_t nGot = fread(pChunk, 1, (size_t)nWindow, f);
          pChunk[nGot] = '\0';
          buff_appendf(&body, "[");
-         /* walk lines of the window, take the last SSE_INITIAL_LINES */
-         char aKeep[256][2048];
+         /* walk lines of the window, take the last nKeepMax lines */
+         int nKeepMax = (g_pLogFile == g_szDemoLog) ? DEMO_INITIAL_LINES : SSE_INITIAL_LINES;
+         char (*aKeep)[2048] = malloc(sizeof(char[2048]) * (size_t)nKeepMax);
          int nKeep = 0;
-         char *pLine = strtok(pChunk, "\n");
-         while (pLine) {
-            if (nKeep == SSE_INITIAL_LINES) {
-               memmove(aKeep, aKeep + 1, sizeof(aKeep[0]) * (nKeep - 1));
-               nKeep--;
+         if (aKeep) {
+            char *pLine = strtok(pChunk, "\n");
+            while (pLine) {
+               if (nKeep == nKeepMax) {
+                  memmove(aKeep, aKeep + 1, sizeof(aKeep[0]) * (size_t)(nKeep - 1));
+                  nKeep--;
+               }
+               snprintf(aKeep[nKeep], sizeof(aKeep[0]), "%s", pLine);
+               nKeep++;
+               pLine = strtok(NULL, "\n");
             }
-            snprintf(aKeep[nKeep], sizeof(aKeep[0]), "%s", pLine);
-            nKeep++;
-            pLine = strtok(NULL, "\n");
-         }
-         for (int i = 0; i < nKeep; i++) {
-            LogEntry e;
-            parse_log_line(aKeep[i], &e);
-            if (!e.bValid) continue;
-            if (i != 0) buff_appendf(&body, ",");
-            build_entry_json(&body, &e);
+            for (int i = 0; i < nKeep; i++) {
+               LogEntry e;
+               parse_log_line(aKeep[i], &e);
+               if (!e.bValid) continue;
+               if (i != 0) buff_appendf(&body, ",");
+               build_entry_json(&body, &e);
+            }
+            free(aKeep);
          }
          buff_appendf(&body, "]");
          free(pChunk);
@@ -477,7 +489,7 @@ static int api_stream(int nFd) {
    for (;;) {
       usleep(SSE_POLL_MS * 1000);
 
-      f = fopen(LOGFILE, "r");
+      f = fopen(g_pLogFile, "r");
       if (!f) continue;
       long nFileSize;
       get_file_size_offset(f, &nFileSize);
@@ -629,6 +641,19 @@ static void handle_connection(int nFd) {
    char szMethod[16], szPath[1024], szQuery[512];
    parse_request(szReq, szMethod, sizeof(szMethod), szPath, sizeof(szPath), szQuery, sizeof(szQuery));
 
+   /* Demo mode: /demo serves the same SPA but every API call reads the bundled
+    * sample log (webroot/sample-500.log) instead of the live log file. The
+    * prefix is stripped so the routing below is shared. */
+   int nDemo = (strcmp(szPath, "/demo") == 0) || (strncmp(szPath, "/demo/", 6) == 0);
+   if (nDemo) {
+      snprintf(g_szDemoLog, sizeof(g_szDemoLog), "%s/%s", g_szWebRoot, DEMO_LOGFILE);
+      g_pLogFile = g_szDemoLog;
+      memmove(szPath, szPath + 5, strlen(szPath + 5) + 1);
+      if (szPath[0] == '\0') strcpy(szPath, "/");
+   } else {
+      g_pLogFile = LOGFILE;
+   }
+
    /* Only GET is supported. */
    if (strcmp(szMethod, "GET") != 0) {
       send_head(nFd, "405 Method Not Allowed", "text/plain", NULL, 18);
@@ -657,7 +682,7 @@ static void handle_connection(int nFd) {
    if (strcmp(szPath, "/api/version") == 0) {
       char szBody[128];
       snprintf(szBody, sizeof(szBody),
-               "{\"name\":\"syslogd_web\",\"version\":\"%s\"}", SYSLOGD_WEB_VERSION);
+               "{\"name\":\"syslogd_web\",\"version\":\"%s\"}", SYSLOGD_VERSION);
       send_head(nFd, "200 OK", "application/json", NULL, (long)strlen(szBody));
       dprintf(nFd, "%s", szBody);
       shutdown(nFd, SHUT_WR);
@@ -698,7 +723,7 @@ int main(int argc, char *argv[]) {
       switch (nOpt) {
          case 'w': g_szWebRoot = optarg; break;
          case 'V':
-            printf("syslogd_web %s\n", SYSLOGD_WEB_VERSION);
+            printf("syslogd_web %s\n", SYSLOGD_VERSION);
             return 0;
          case 'h':
             print_usage(argv[0]);

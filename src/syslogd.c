@@ -28,11 +28,12 @@
 #include <time.h>
 #include <unistd.h>
 
+#include "version.h"
+
 #define BUFFER_SIZE 2048
 #define MAX_LOG_SIZE (5 * 1024 * 1024)  // 5 MB
 #define PID_FILE "/var/run/custom_syslog.pid"
 #define STATUS_FILE "/var/run/custom_syslog.status"
-#define SYSLOGD_VERSION "0.0.1"
 
 const char *facility_names[] = {
     "kern", "user", "mail", "daemon", "auth", "syslog", "lpr", "news",

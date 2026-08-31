@@ -1,0 +1,500 @@
+<134>1 2026-08-31T12:00:00.100Z power-meter-01 agent 31 metrics [metrics power=1180 voltage=230.1] power draw within expected band
+<28>1 2026-08-31T12:01:12.137Z router-01 named 681 msg - packet loss 4% on upstream interface eth0 (previous hour)
+<30>1 2026-08-31T12:02:24.174Z pi-smarthome homeassistant 907 msg - entity kitchen-light state changed to on
+<26>1 2026-08-31T12:03:36.211Z web-01 nginx 1421 msg - all upstream servers down, returning 503 for 2 minutes
+<134>1 2026-08-31T12:04:48.248Z temperature-sensor-01 agent 18 metrics [metrics temp="21.3" hum="55.1"] sample within normal range
+<30>1 2026-08-31T12:06:00.285Z rpi-monitor-01 vcgencmd 330 msg - thermal throttle cleared, frequency scaling resumed
+<134>1 2026-08-31T12:07:12.322Z power-meter-01 agent 31 metrics [metrics power=1180 voltage=230.1] power draw within expected band
+<29>1 2026-08-31T12:08:24.359Z pi-smarthome zigbee2mqtt 205 msg - zigbee coordinator restarted, 28 devices re-paired
+<30>1 2026-08-31T12:09:36.396Z web-01 apache2 890 msg - client 10.0.0.55 completed TLS handshake on virtualhost www.example.com
+<28>1 2026-08-31T12:10:48.433Z router-01 named 681 msg - packet loss 4% on upstream interface eth0 (previous hour)
+<30>1 2026-08-31T12:12:00.470Z db-01 mysqld 1204 msg - slow query optimized, execution time back to 18ms
+<30>1 2026-08-31T12:13:12.507Z switch-02 snmpd 344 msg - SNMP trap sent: linkUp on port Gi0/12 (speed 1Gbps)
+<134>1 2026-08-31T12:14:24.544Z temperature-sensor-01 agent 18 metrics [metrics temp="21.3" hum="55.1"] sample within normal range
+<134>1 2026-08-31T12:15:36.581Z weather-station-01 agent 27 metrics [metrics wind=3.2 rain=0.0] wind and precipitation sample ok
+<30>1 2026-08-31T12:16:48.618Z router-01 dhcpd 822 msg - DHCPOFFER 192.168.1.42 to 5c:8a:ef:12:9b:7f via eth1
+<30>1 2026-08-31T12:18:00.655Z dns-01 named 441 msg - zone example.com transfer completed in 0.42s
+<30>1 2026-08-31T12:19:12.692Z db-01 postgres 988 msg - autovacuum finished on table orders, 1540 tuples processed
+<30>1 2026-08-31T12:20:24.729Z web-01 nginx 1421 msg - upstream backend health check passed for api.internal
+<26>1 2026-08-31T12:21:36.766Z dns-01 named 441 msg - authoritative server failed to respond for example.com
+<78>1 2026-08-31T12:22:48.803Z backup-01 borg 771 msg - backup of /srv/data completed, 4.2 GiB, dedup ratio 3.1x
+<31>1 2026-08-31T12:24:00.840Z router-01 iptables 611 msg - debug: rule chain FORWARD matched packet from 10.0.0.0/24
+<30>1 2026-08-31T12:25:12.877Z web-01 apache2 890 msg - client 10.0.0.55 completed TLS handshake on virtualhost www.example.com
+<134>1 2026-08-31T12:26:24.914Z garden-sensor-01 agent 23 metrics [metrics soil=42.0 light=71.2] soil moisture and light sample ok
+<134>1 2026-08-31T12:27:36.951Z garden-sensor-01 agent 23 metrics [metrics soil=42.0 light=71.2] soil moisture and light sample ok
+<28>1 2026-08-31T12:28:48.988Z rpi-monitor-01 sensors 402 msg - CPU temperature reached 72C, fan turned on
+<30>1 2026-08-31T12:30:01.025Z rpi-monitor-01 vcgencmd 330 msg - thermal throttle cleared, frequency scaling resumed
+<30>1 2026-08-31T12:31:13.062Z mail-01 postfix 1337 msg - queue recovered; all deferred messages flushed
+<30>1 2026-08-31T12:32:25.099Z rpi-monitor-01 vcgencmd 330 msg - thermal throttle cleared, frequency scaling resumed
+<30>1 2026-08-31T12:33:36.136Z db-01 postgres 988 msg - autovacuum finished on table orders, 1540 tuples processed
+<0>1 2026-08-31T12:34:48.173Z db-01 kernel 0 msg - Kernel panic - not syncing: storage subsystem failure, system halted
+<30>1 2026-08-31T12:36:00.210Z dns-01 named 441 msg - zone example.com transfer completed in 0.42s
+<134>1 2026-08-31T12:37:12.247Z garden-sensor-01 agent 23 metrics [metrics soil=42.0 light=71.2] soil moisture and light sample ok
+<31>1 2026-08-31T12:38:24.284Z switch-02 lldpd 501 msg - debug: neighbor discovered on Gi0/12: host pi-camera-01
+<134>1 2026-08-31T12:39:36.321Z weather-station-01 agent 27 metrics [metrics wind=3.2 rain=0.0] wind and precipitation sample ok
+<30>1 2026-08-31T12:40:48.358Z router-01 dhcpd 822 msg - DHCPOFFER 192.168.1.42 to 5c:8a:ef:12:9b:7f via eth1
+<4>1 2026-08-31T12:42:00.395Z nas-01 kmod 0 msg - disk /dev/sdb reallocated sector count rising
+<30>1 2026-08-31T12:43:12.432Z web-01 apache2 890 msg - client 10.0.0.55 completed TLS handshake on virtualhost www.example.com
+<78>1 2026-08-31T12:44:24.469Z backup-01 borg 771 msg - backup of /srv/data completed, 4.2 GiB, dedup ratio 3.1x
+<30>1 2026-08-31T12:45:36.506Z mail-01 postfix 1337 msg - queue recovered; all deferred messages flushed
+<31>1 2026-08-31T12:46:48.543Z router-01 iptables 611 msg - debug: rule chain FORWARD matched packet from 10.0.0.0/24
+<0>1 2026-08-31T12:48:00.580Z router-01 kernel 0 msg - Emergency: watchdog detected CPU stall, forcing hardware reset
+<31>1 2026-08-31T12:49:12.617Z router-01 iptables 611 msg - debug: rule chain FORWARD matched packet from 10.0.0.0/24
+<134>1 2026-08-31T12:50:24.654Z temperature-sensor-01 agent 18 metrics [metrics temp="21.3" hum="55.1"] sample within normal range
+<30>1 2026-08-31T12:51:36.691Z dns-01 named 441 msg - zone example.com transfer completed in 0.42s
+<134>1 2026-08-31T12:52:48.728Z garden-sensor-01 agent 23 metrics [metrics soil=42.0 light=71.2] soil moisture and light sample ok
+<78>1 2026-08-31T12:54:00.765Z backup-01 borg 771 msg - backup of /srv/data completed, 4.2 GiB, dedup ratio 3.1x
+<28>1 2026-08-31T12:55:12.802Z web-01 nginx 1421 msg - high response time 2.4s for /api/report (95th pct 900ms)
+<30>1 2026-08-31T12:56:24.839Z pi-smarthome homeassistant 907 msg - entity kitchen-light state changed to on
+<134>1 2026-08-31T12:57:36.876Z power-meter-01 agent 31 metrics [metrics power=1180 voltage=230.1] power draw within expected band
+<29>1 2026-08-31T12:58:48.913Z router-01 ntpd 402 msg - system clock synchronized with 192.168.1.1, offset 0.8ms
+<134>1 2026-08-31T13:00:00.950Z weather-station-01 agent 27 metrics [metrics wind=3.2 rain=0.0] wind and precipitation sample ok
+<30>1 2026-08-31T13:01:12.987Z mail-01 postfix 1337 msg - queue recovered; all deferred messages flushed
+<30>1 2026-08-31T13:02:25.024Z rpi-monitor-01 vcgencmd 330 msg - thermal throttle cleared, frequency scaling resumed
+<31>1 2026-08-31T13:03:37.061Z pi-camera-01 motion 555 msg - debug: frame buffer allocated 1280x720 at 15fps
+<31>1 2026-08-31T13:04:49.098Z rpi-monitor-01 sensors 402 msg - debug: reading temp sensor /sys/class/thermal/thermal_zone0
+<30>1 2026-08-31T13:06:00.135Z nas-01 smbd 1022 msg - SMB session opened by user backup-service for share /public
+<134>1 2026-08-31T13:07:12.172Z weather-station-01 agent 27 metrics [metrics wind=3.2 rain=0.0] wind and precipitation sample ok
+<30>1 2026-08-31T13:08:24.209Z dns-01 named 441 msg - zone example.com transfer completed in 0.42s
+<28>1 2026-08-31T13:09:36.246Z router-01 named 681 msg - packet loss 4% on upstream interface eth0 (previous hour)
+<30>1 2026-08-31T13:10:48.283Z web-01 nginx 1421 msg - upstream backend health check passed for api.internal
+<28>1 2026-08-31T13:12:00.320Z db-01 postgres 988 msg - connection limit 80% reached, 160 of 200 in use
+<31>1 2026-08-31T13:13:12.357Z pi-camera-01 motion 555 msg - debug: frame buffer allocated 1280x720 at 15fps
+<134>1 2026-08-31T13:14:24.394Z temperature-sensor-01 agent 18 metrics [metrics temp="21.3" hum="55.1"] sample within normal range
+<30>1 2026-08-31T13:15:36.431Z db-01 mysqld 1204 msg - slow query optimized, execution time back to 18ms
+<31>1 2026-08-31T13:16:48.468Z switch-02 lldpd 501 msg - debug: neighbor discovered on Gi0/12: host pi-camera-01
+<30>1 2026-08-31T13:18:00.505Z switch-02 snmpd 344 msg - SNMP trap sent: linkUp on port Gi0/12 (speed 1Gbps)
+<78>1 2026-08-31T13:19:12.542Z backup-01 borg 771 msg - backup of /srv/data completed, 4.2 GiB, dedup ratio 3.1x
+<134>1 2026-08-31T13:20:24.579Z weather-station-01 agent 27 metrics [metrics wind=3.2 rain=0.0] wind and precipitation sample ok
+<29>1 2026-08-31T13:21:36.616Z db-01 mysqld 1204 msg - replication slave caught up with master after 12s lag
+<30>1 2026-08-31T13:22:48.653Z router-01 ospfd 611 msg - adjacency with neighbor 10.0.1.2 established on eth0
+<30>1 2026-08-31T13:24:00.690Z dns-01 named 441 msg - zone example.com transfer completed in 0.42s
+<30>1 2026-08-31T13:25:12.727Z db-01 postgres 988 msg - autovacuum finished on table orders, 1540 tuples processed
+<30>1 2026-08-31T13:26:24.764Z nas-01 smbd 1022 msg - SMB session opened by user backup-service for share /public
+<30>1 2026-08-31T13:27:36.801Z pi-smarthome homeassistant 907 msg - entity kitchen-light state changed to on
+<30>1 2026-08-31T13:28:48.838Z db-01 postgres 988 msg - autovacuum finished on table orders, 1540 tuples processed
+<30>1 2026-08-31T13:30:00.875Z db-01 mysqld 1204 msg - slow query optimized, execution time back to 18ms
+<134>1 2026-08-31T13:31:12.912Z garden-sensor-01 agent 23 metrics [metrics soil=42.0 light=71.2] soil moisture and light sample ok
+<26>1 2026-08-31T13:32:24.949Z router-01 ospfd 611 msg - neighbor 10.0.1.2 state changed to Down on core link eth0
+<30>1 2026-08-31T13:33:36.986Z switch-02 snmpd 344 msg - SNMP trap sent: linkUp on port Gi0/12 (speed 1Gbps)
+<30>1 2026-08-31T13:34:49.023Z db-01 postgres 988 msg - autovacuum finished on table orders, 1540 tuples processed
+<134>1 2026-08-31T13:36:01.060Z temperature-sensor-01 agent 18 metrics [metrics temp="21.3" hum="55.1"] sample within normal range
+<30>1 2026-08-31T13:37:13.097Z pi-smarthome homeassistant 907 msg - entity kitchen-light state changed to on
+<30>1 2026-08-31T13:38:24.134Z pi-smarthome homeassistant 907 msg - entity kitchen-light state changed to on
+<30>1 2026-08-31T13:39:36.171Z db-01 postgres 988 msg - autovacuum finished on table orders, 1540 tuples processed
+<134>1 2026-08-31T13:40:48.208Z weather-station-01 agent 27 metrics [metrics wind=3.2 rain=0.0] wind and precipitation sample ok
+<30>1 2026-08-31T13:42:00.245Z rpi-monitor-01 vcgencmd 330 msg - thermal throttle cleared, frequency scaling resumed
+<30>1 2026-08-31T13:43:12.282Z router-01 ospfd 611 msg - adjacency with neighbor 10.0.1.2 established on eth0
+<131>1 2026-08-31T13:44:24.319Z power-meter-01 agent 31 metrics [metrics power=95] power reading flagged as unreasonable
+<26>1 2026-08-31T13:45:36.356Z router-01 ospfd 611 msg - neighbor 10.0.1.2 state changed to Down on core link eth0
+<30>1 2026-08-31T13:46:48.393Z pi-camera-01 motion 555 msg - motion capture frame stored, 1.2 MB
+<31>1 2026-08-31T13:48:00.430Z switch-02 lldpd 501 msg - debug: neighbor discovered on Gi0/12: host pi-camera-01
+<31>1 2026-08-31T13:49:12.467Z pi-smarthome homeassistant 907 msg - debug: discovered new entity zwave/sensor/0x1421/level
+<30>1 2026-08-31T13:50:24.504Z db-01 mysqld 1204 msg - slow query optimized, execution time back to 18ms
+<26>1 2026-08-31T13:51:36.541Z web-01 nginx 1421 msg - all upstream servers down, returning 503 for 2 minutes
+<30>1 2026-08-31T13:52:48.578Z pi-smarthome homeassistant 907 msg - entity kitchen-light state changed to on
+<30>1 2026-08-31T13:54:00.615Z switch-02 snmpd 344 msg - SNMP trap sent: linkUp on port Gi0/12 (speed 1Gbps)
+<30>1 2026-08-31T13:55:12.652Z router-01 dhcpd 822 msg - DHCPOFFER 192.168.1.42 to 5c:8a:ef:12:9b:7f via eth1
+<25>1 2026-08-31T13:56:24.689Z db-01 postgres 988 msg - replication stream interrupted, WAL lag growing beyond 5 minutes
+<30>1 2026-08-31T13:57:36.726Z mail-01 postfix 1337 msg - queue recovered; all deferred messages flushed
+<30>1 2026-08-31T13:58:48.763Z nas-01 smbd 1022 msg - SMB session opened by user backup-service for share /public
+<132>1 2026-08-31T14:00:00.800Z temperature-sensor-01 agent 18 metrics [metrics temp="37.8" hum="91.0"] temperature above nominal range
+<30>1 2026-08-31T14:01:12.837Z rpi-monitor-01 vcgencmd 330 msg - thermal throttle cleared, frequency scaling resumed
+<134>1 2026-08-31T14:02:24.874Z weather-station-01 agent 27 metrics [metrics wind=3.2 rain=0.0] wind and precipitation sample ok
+<25>1 2026-08-31T14:03:36.911Z router-01 dhcpd 822 msg - address pool exhausted on eth1, cannot allocate lease
+<30>1 2026-08-31T14:04:48.948Z nas-01 smbd 1022 msg - SMB session opened by user backup-service for share /public
+<135>1 2026-08-31T14:06:00.985Z weather-station-01 agent 27 metrics [metrics wind=3.2] debug: raw ADC value for anemometer=1984
+<134>1 2026-08-31T14:07:13.022Z garden-sensor-01 agent 23 metrics [metrics soil=42.0 light=71.2] soil moisture and light sample ok
+<29>1 2026-08-31T14:08:25.059Z router-01 ntpd 402 msg - system clock synchronized with 192.168.1.1, offset 0.8ms
+<30>1 2026-08-31T14:09:37.096Z mail-01 postfix 1337 msg - queue recovered; all deferred messages flushed
+<25>1 2026-08-31T14:10:48.133Z db-01 postgres 988 msg - replication stream interrupted, WAL lag growing beyond 5 minutes
+<30>1 2026-08-31T14:12:00.170Z pi-camera-01 motion 555 msg - motion capture frame stored, 1.2 MB
+<30>1 2026-08-31T14:13:12.207Z router-01 ospfd 611 msg - adjacency with neighbor 10.0.1.2 established on eth0
+<134>1 2026-08-31T14:14:24.244Z temperature-sensor-01 agent 18 metrics [metrics temp="21.3" hum="55.1"] sample within normal range
+<31>1 2026-08-31T14:15:36.281Z switch-02 lldpd 501 msg - debug: neighbor discovered on Gi0/12: host pi-camera-01
+<134>1 2026-08-31T14:16:48.318Z power-meter-01 agent 31 metrics [metrics power=1180 voltage=230.1] power draw within expected band
+<134>1 2026-08-31T14:18:00.355Z garden-sensor-01 agent 23 metrics [metrics soil=42.0 light=71.2] soil moisture and light sample ok
+<78>1 2026-08-31T14:19:12.392Z backup-01 borg 771 msg - backup of /srv/data completed, 4.2 GiB, dedup ratio 3.1x
+<30>1 2026-08-31T14:20:24.429Z dns-01 named 441 msg - zone example.com transfer completed in 0.42s
+<30>1 2026-08-31T14:21:36.466Z pi-camera-01 motion 555 msg - motion capture frame stored, 1.2 MB
+<30>1 2026-08-31T14:22:48.503Z dns-01 named 441 msg - zone example.com transfer completed in 0.42s
+<134>1 2026-08-31T14:24:00.540Z power-meter-01 agent 31 metrics [metrics power=1180 voltage=230.1] power draw within expected band
+<30>1 2026-08-31T14:25:12.577Z router-01 dhcpd 822 msg - DHCPOFFER 192.168.1.42 to 5c:8a:ef:12:9b:7f via eth1
+<30>1 2026-08-31T14:26:24.614Z nas-01 smbd 1022 msg - SMB session opened by user backup-service for share /public
+<31>1 2026-08-31T14:27:36.651Z pi-smarthome homeassistant 907 msg - debug: discovered new entity zwave/sensor/0x1421/level
+<30>1 2026-08-31T14:28:48.688Z nas-01 smbd 1022 msg - SMB session opened by user backup-service for share /public
+<30>1 2026-08-31T14:30:00.725Z router-01 dhcpd 822 msg - DHCPOFFER 192.168.1.42 to 5c:8a:ef:12:9b:7f via eth1
+<30>1 2026-08-31T14:31:12.762Z pi-camera-01 motion 555 msg - motion capture frame stored, 1.2 MB
+<31>1 2026-08-31T14:32:24.799Z router-01 iptables 611 msg - debug: rule chain FORWARD matched packet from 10.0.0.0/24
+<30>1 2026-08-31T14:33:36.836Z dns-01 named 441 msg - zone example.com transfer completed in 0.42s
+<134>1 2026-08-31T14:34:48.873Z weather-station-01 agent 27 metrics [metrics wind=3.2 rain=0.0] wind and precipitation sample ok
+<31>1 2026-08-31T14:36:00.910Z router-01 iptables 611 msg - debug: rule chain FORWARD matched packet from 10.0.0.0/24
+<30>1 2026-08-31T14:37:12.947Z router-01 ospfd 611 msg - adjacency with neighbor 10.0.1.2 established on eth0
+<29>1 2026-08-31T14:38:24.984Z router-01 ntpd 402 msg - system clock synchronized with 192.168.1.1, offset 0.8ms
+<30>1 2026-08-31T14:39:37.021Z dns-01 named 441 msg - zone example.com transfer completed in 0.42s
+<134>1 2026-08-31T14:40:49.058Z weather-station-01 agent 27 metrics [metrics wind=3.2 rain=0.0] wind and precipitation sample ok
+<30>1 2026-08-31T14:42:01.095Z db-01 postgres 988 msg - autovacuum finished on table orders, 1540 tuples processed
+<29>1 2026-08-31T14:43:12.132Z router-01 ntpd 402 msg - system clock synchronized with 192.168.1.1, offset 0.8ms
+<30>1 2026-08-31T14:44:24.169Z switch-02 snmpd 344 msg - SNMP trap sent: linkUp on port Gi0/12 (speed 1Gbps)
+<30>1 2026-08-31T14:45:36.206Z pi-camera-01 motion 555 msg - motion capture frame stored, 1.2 MB
+<134>1 2026-08-31T14:46:48.243Z garden-sensor-01 agent 23 metrics [metrics soil=42.0 light=71.2] soil moisture and light sample ok
+<134>1 2026-08-31T14:48:00.280Z garden-sensor-01 agent 23 metrics [metrics soil=42.0 light=71.2] soil moisture and light sample ok
+<30>1 2026-08-31T14:49:12.317Z web-01 nginx 1421 msg - upstream backend health check passed for api.internal
+<134>1 2026-08-31T14:50:24.354Z weather-station-01 agent 27 metrics [metrics wind=3.2 rain=0.0] wind and precipitation sample ok
+<30>1 2026-08-31T14:51:36.391Z nas-01 smbd 1022 msg - SMB session opened by user backup-service for share /public
+<134>1 2026-08-31T14:52:48.428Z power-meter-01 agent 31 metrics [metrics power=1180 voltage=230.1] power draw within expected band
+<30>1 2026-08-31T14:54:00.465Z nas-01 smbd 1022 msg - SMB session opened by user backup-service for share /public
+<31>1 2026-08-31T14:55:12.502Z pi-smarthome homeassistant 907 msg - debug: discovered new entity zwave/sensor/0x1421/level
+<30>1 2026-08-31T14:56:24.539Z pi-smarthome homeassistant 907 msg - entity kitchen-light state changed to on
+<134>1 2026-08-31T14:57:36.576Z weather-station-01 agent 27 metrics [metrics wind=3.2 rain=0.0] wind and precipitation sample ok
+<26>1 2026-08-31T14:58:48.613Z dns-01 named 441 msg - authoritative server failed to respond for example.com
+<25>1 2026-08-31T15:00:00.650Z db-01 postgres 988 msg - replication stream interrupted, WAL lag growing beyond 5 minutes
+<25>1 2026-08-31T15:01:12.687Z nas-01 smartd 718 msg - SMART error threshold exceeded on /dev/sdc: pending sectors
+<134>1 2026-08-31T15:02:24.724Z temperature-sensor-01 agent 18 metrics [metrics temp="21.3" hum="55.1"] sample within normal range
+<30>1 2026-08-31T15:03:36.761Z nas-01 smbd 1022 msg - SMB session opened by user backup-service for share /public
+<30>1 2026-08-31T15:04:48.798Z web-01 apache2 890 msg - client 10.0.0.55 completed TLS handshake on virtualhost www.example.com
+<134>1 2026-08-31T15:06:00.835Z garden-sensor-01 agent 23 metrics [metrics soil=42.0 light=71.2] soil moisture and light sample ok
+<30>1 2026-08-31T15:07:12.872Z mail-01 postfix 1337 msg - queue recovered; all deferred messages flushed
+<30>1 2026-08-31T15:08:24.909Z web-01 nginx 1421 msg - upstream backend health check passed for api.internal
+<30>1 2026-08-31T15:09:36.946Z router-01 dhcpd 822 msg - DHCPOFFER 192.168.1.42 to 5c:8a:ef:12:9b:7f via eth1
+<134>1 2026-08-31T15:10:48.983Z weather-station-01 agent 27 metrics [metrics wind=3.2 rain=0.0] wind and precipitation sample ok
+<30>1 2026-08-31T15:12:01.020Z router-01 dhcpd 822 msg - DHCPOFFER 192.168.1.42 to 5c:8a:ef:12:9b:7f via eth1
+<30>1 2026-08-31T15:13:13.057Z dns-01 named 441 msg - zone example.com transfer completed in 0.42s
+<30>1 2026-08-31T15:14:25.094Z nas-01 smbd 1022 msg - SMB session opened by user backup-service for share /public
+<134>1 2026-08-31T15:15:36.131Z power-meter-01 agent 31 metrics [metrics power=1180 voltage=230.1] power draw within expected band
+<135>1 2026-08-31T15:16:48.168Z weather-station-01 agent 27 metrics [metrics wind=3.2] debug: raw ADC value for anemometer=1984
+<30>1 2026-08-31T15:18:00.205Z pi-smarthome homeassistant 907 msg - entity kitchen-light state changed to on
+<30>1 2026-08-31T15:19:12.242Z nas-01 smbd 1022 msg - SMB session opened by user backup-service for share /public
+<30>1 2026-08-31T15:20:24.279Z web-01 nginx 1421 msg - upstream backend health check passed for api.internal
+<30>1 2026-08-31T15:21:36.316Z web-01 apache2 890 msg - client 10.0.0.55 completed TLS handshake on virtualhost www.example.com
+<30>1 2026-08-31T15:22:48.353Z router-01 ospfd 611 msg - adjacency with neighbor 10.0.1.2 established on eth0
+<31>1 2026-08-31T15:24:00.390Z pi-smarthome homeassistant 907 msg - debug: discovered new entity zwave/sensor/0x1421/level
+<30>1 2026-08-31T15:25:12.427Z router-01 dhcpd 822 msg - DHCPOFFER 192.168.1.42 to 5c:8a:ef:12:9b:7f via eth1
+<30>1 2026-08-31T15:26:24.464Z nas-01 smbd 1022 msg - SMB session opened by user backup-service for share /public
+<30>1 2026-08-31T15:27:36.501Z web-01 nginx 1421 msg - upstream backend health check passed for api.internal
+<78>1 2026-08-31T15:28:48.538Z backup-01 borg 771 msg - backup of /srv/data completed, 4.2 GiB, dedup ratio 3.1x
+<132>1 2026-08-31T15:30:00.575Z garden-sensor-01 agent 23 metrics [metrics soil=12.0] soil moisture below irrigation threshold
+<30>1 2026-08-31T15:31:12.612Z rpi-monitor-01 vcgencmd 330 msg - thermal throttle cleared, frequency scaling resumed
+<30>1 2026-08-31T15:32:24.649Z router-01 dhcpd 822 msg - DHCPOFFER 192.168.1.42 to 5c:8a:ef:12:9b:7f via eth1
+<134>1 2026-08-31T15:33:36.686Z temperature-sensor-01 agent 18 metrics [metrics temp="21.3" hum="55.1"] sample within normal range
+<30>1 2026-08-31T15:34:48.723Z db-01 mysqld 1204 msg - slow query optimized, execution time back to 18ms
+<134>1 2026-08-31T15:36:00.760Z weather-station-01 agent 27 metrics [metrics wind=3.2 rain=0.0] wind and precipitation sample ok
+<78>1 2026-08-31T15:37:12.797Z backup-01 borg 771 msg - backup of /srv/data completed, 4.2 GiB, dedup ratio 3.1x
+<134>1 2026-08-31T15:38:24.834Z weather-station-01 agent 27 metrics [metrics wind=3.2 rain=0.0] wind and precipitation sample ok
+<30>1 2026-08-31T15:39:36.871Z web-01 nginx 1421 msg - upstream backend health check passed for api.internal
+<30>1 2026-08-31T15:40:48.908Z db-01 postgres 988 msg - autovacuum finished on table orders, 1540 tuples processed
+<30>1 2026-08-31T15:42:00.945Z dns-01 named 441 msg - zone example.com transfer completed in 0.42s
+<31>1 2026-08-31T15:43:12.982Z switch-02 lldpd 501 msg - debug: neighbor discovered on Gi0/12: host pi-camera-01
+<30>1 2026-08-31T15:44:25.019Z router-01 ospfd 611 msg - adjacency with neighbor 10.0.1.2 established on eth0
+<30>1 2026-08-31T15:45:37.056Z pi-camera-01 motion 555 msg - motion capture frame stored, 1.2 MB
+<78>1 2026-08-31T15:46:49.093Z backup-01 borg 771 msg - backup of /srv/data completed, 4.2 GiB, dedup ratio 3.1x
+<30>1 2026-08-31T15:48:00.130Z mail-01 postfix 1337 msg - queue recovered; all deferred messages flushed
+<30>1 2026-08-31T15:49:12.167Z switch-02 snmpd 344 msg - SNMP trap sent: linkUp on port Gi0/12 (speed 1Gbps)
+<30>1 2026-08-31T15:50:24.204Z db-01 mysqld 1204 msg - slow query optimized, execution time back to 18ms
+<134>1 2026-08-31T15:51:36.241Z power-meter-01 agent 31 metrics [metrics power=1180 voltage=230.1] power draw within expected band
+<28>1 2026-08-31T15:52:48.278Z rpi-monitor-01 sensors 402 msg - CPU temperature reached 72C, fan turned on
+<31>1 2026-08-31T15:54:00.315Z rpi-monitor-01 sensors 402 msg - debug: reading temp sensor /sys/class/thermal/thermal_zone0
+<31>1 2026-08-31T15:55:12.352Z pi-smarthome homeassistant 907 msg - debug: discovered new entity zwave/sensor/0x1421/level
+<30>1 2026-08-31T15:56:24.389Z web-01 nginx 1421 msg - upstream backend health check passed for api.internal
+<30>1 2026-08-31T15:57:36.426Z router-01 dhcpd 822 msg - DHCPOFFER 192.168.1.42 to 5c:8a:ef:12:9b:7f via eth1
+<134>1 2026-08-31T15:58:48.463Z power-meter-01 agent 31 metrics [metrics power=1180 voltage=230.1] power draw within expected band
+<30>1 2026-08-31T16:00:00.500Z web-01 apache2 890 msg - client 10.0.0.55 completed TLS handshake on virtualhost www.example.com
+<30>1 2026-08-31T16:01:12.537Z mail-01 postfix 1337 msg - queue recovered; all deferred messages flushed
+<134>1 2026-08-31T16:02:24.574Z weather-station-01 agent 27 metrics [metrics wind=3.2 rain=0.0] wind and precipitation sample ok
+<30>1 2026-08-31T16:03:36.611Z rpi-monitor-01 vcgencmd 330 msg - thermal throttle cleared, frequency scaling resumed
+<30>1 2026-08-31T16:04:48.648Z router-01 ospfd 611 msg - adjacency with neighbor 10.0.1.2 established on eth0
+<30>1 2026-08-31T16:06:00.685Z pi-smarthome homeassistant 907 msg - entity kitchen-light state changed to on
+<74>1 2026-08-31T16:07:12.722Z backup-01 borg 771 msg - backup repository missing dedup index, integrity suspect
+<30>1 2026-08-31T16:08:24.759Z nas-01 smbd 1022 msg - SMB session opened by user backup-service for share /public
+<30>1 2026-08-31T16:09:36.796Z nas-01 smbd 1022 msg - SMB session opened by user backup-service for share /public
+<134>1 2026-08-31T16:10:48.833Z temperature-sensor-01 agent 18 metrics [metrics temp="21.3" hum="55.1"] sample within normal range
+<30>1 2026-08-31T16:12:00.870Z nas-01 smbd 1022 msg - SMB session opened by user backup-service for share /public
+<30>1 2026-08-31T16:13:12.907Z pi-smarthome homeassistant 907 msg - entity kitchen-light state changed to on
+<30>1 2026-08-31T16:14:24.944Z router-01 dhcpd 822 msg - DHCPOFFER 192.168.1.42 to 5c:8a:ef:12:9b:7f via eth1
+<30>1 2026-08-31T16:15:36.981Z pi-smarthome homeassistant 907 msg - entity kitchen-light state changed to on
+<31>1 2026-08-31T16:16:49.018Z switch-02 lldpd 501 msg - debug: neighbor discovered on Gi0/12: host pi-camera-01
+<30>1 2026-08-31T16:18:01.055Z router-01 dhcpd 822 msg - DHCPOFFER 192.168.1.42 to 5c:8a:ef:12:9b:7f via eth1
+<30>1 2026-08-31T16:19:13.092Z web-01 apache2 890 msg - client 10.0.0.55 completed TLS handshake on virtualhost www.example.com
+<30>1 2026-08-31T16:20:24.129Z pi-smarthome homeassistant 907 msg - entity kitchen-light state changed to on
+<31>1 2026-08-31T16:21:36.166Z rpi-monitor-01 sensors 402 msg - debug: reading temp sensor /sys/class/thermal/thermal_zone0
+<30>1 2026-08-31T16:22:48.203Z web-01 nginx 1421 msg - upstream backend health check passed for api.internal
+<30>1 2026-08-31T16:24:00.240Z pi-smarthome homeassistant 907 msg - entity kitchen-light state changed to on
+<134>1 2026-08-31T16:25:12.277Z temperature-sensor-01 agent 18 metrics [metrics temp="21.3" hum="55.1"] sample within normal range
+<30>1 2026-08-31T16:26:24.314Z router-01 dhcpd 822 msg - DHCPOFFER 192.168.1.42 to 5c:8a:ef:12:9b:7f via eth1
+<30>1 2026-08-31T16:27:36.351Z pi-camera-01 motion 555 msg - motion capture frame stored, 1.2 MB
+<28>1 2026-08-31T16:28:48.388Z switch-02 snmpd 344 msg - port Gi0/8 bandwidth utilization above 85% for 5min
+<134>1 2026-08-31T16:30:00.425Z temperature-sensor-01 agent 18 metrics [metrics temp="21.3" hum="55.1"] sample within normal range
+<30>1 2026-08-31T16:31:12.462Z router-01 dhcpd 822 msg - DHCPOFFER 192.168.1.42 to 5c:8a:ef:12:9b:7f via eth1
+<24>1 2026-08-31T16:32:24.499Z web-01 systemd 1 msg - Emergency shutdown initiated by sysadmin for critical thermal event
+<134>1 2026-08-31T16:33:36.536Z garden-sensor-01 agent 23 metrics [metrics soil=42.0 light=71.2] soil moisture and light sample ok
+<4>1 2026-08-31T16:34:48.573Z nas-01 kmod 0 msg - disk /dev/sdb reallocated sector count rising
+<78>1 2026-08-31T16:36:00.610Z backup-01 borg 771 msg - backup of /srv/data completed, 4.2 GiB, dedup ratio 3.1x
+<30>1 2026-08-31T16:37:12.647Z web-01 apache2 890 msg - client 10.0.0.55 completed TLS handshake on virtualhost www.example.com
+<131>1 2026-08-31T16:38:24.684Z power-meter-01 agent 31 metrics [metrics power=95] power reading flagged as unreasonable
+<132>1 2026-08-31T16:39:36.721Z temperature-sensor-01 agent 18 metrics [metrics temp="37.8" hum="91.0"] temperature above nominal range
+<30>1 2026-08-31T16:40:48.758Z db-01 mysqld 1204 msg - slow query optimized, execution time back to 18ms
+<30>1 2026-08-31T16:42:00.795Z rpi-monitor-01 vcgencmd 330 msg - thermal throttle cleared, frequency scaling resumed
+<134>1 2026-08-31T16:43:12.832Z weather-station-01 agent 27 metrics [metrics wind=3.2 rain=0.0] wind and precipitation sample ok
+<30>1 2026-08-31T16:44:24.869Z switch-02 snmpd 344 msg - SNMP trap sent: linkUp on port Gi0/12 (speed 1Gbps)
+<30>1 2026-08-31T16:45:36.906Z pi-smarthome homeassistant 907 msg - entity kitchen-light state changed to on
+<27>1 2026-08-31T16:46:48.943Z switch-02 stp 101 msg - topology change TCN received on port Gi0/5 unexpectedly
+<30>1 2026-08-31T16:48:00.980Z db-01 mysqld 1204 msg - slow query optimized, execution time back to 18ms
+<30>1 2026-08-31T16:49:13.017Z rpi-monitor-01 vcgencmd 330 msg - thermal throttle cleared, frequency scaling resumed
+<30>1 2026-08-31T16:50:25.054Z rpi-monitor-01 vcgencmd 330 msg - thermal throttle cleared, frequency scaling resumed
+<30>1 2026-08-31T16:51:37.091Z nas-01 smbd 1022 msg - SMB session opened by user backup-service for share /public
+<30>1 2026-08-31T16:52:48.128Z pi-smarthome homeassistant 907 msg - entity kitchen-light state changed to on
+<30>1 2026-08-31T16:54:00.165Z nas-01 smbd 1022 msg - SMB session opened by user backup-service for share /public
+<30>1 2026-08-31T16:55:12.202Z nas-01 smbd 1022 msg - SMB session opened by user backup-service for share /public
+<134>1 2026-08-31T16:56:24.239Z temperature-sensor-01 agent 18 metrics [metrics temp="21.3" hum="55.1"] sample within normal range
+<30>1 2026-08-31T16:57:36.276Z mail-01 postfix 1337 msg - queue recovered; all deferred messages flushed
+<31>1 2026-08-31T16:58:48.313Z pi-smarthome homeassistant 907 msg - debug: discovered new entity zwave/sensor/0x1421/level
+<134>1 2026-08-31T17:00:00.350Z weather-station-01 agent 27 metrics [metrics wind=3.2 rain=0.0] wind and precipitation sample ok
+<31>1 2026-08-31T17:01:12.387Z rpi-monitor-01 sensors 402 msg - debug: reading temp sensor /sys/class/thermal/thermal_zone0
+<30>1 2026-08-31T17:02:24.424Z router-01 dhcpd 822 msg - DHCPOFFER 192.168.1.42 to 5c:8a:ef:12:9b:7f via eth1
+<30>1 2026-08-31T17:03:36.461Z rpi-monitor-01 vcgencmd 330 msg - thermal throttle cleared, frequency scaling resumed
+<30>1 2026-08-31T17:04:48.498Z rpi-monitor-01 vcgencmd 330 msg - thermal throttle cleared, frequency scaling resumed
+<134>1 2026-08-31T17:06:00.535Z garden-sensor-01 agent 23 metrics [metrics soil=42.0 light=71.2] soil moisture and light sample ok
+<31>1 2026-08-31T17:07:12.572Z pi-smarthome homeassistant 907 msg - debug: discovered new entity zwave/sensor/0x1421/level
+<78>1 2026-08-31T17:08:24.609Z backup-01 borg 771 msg - backup of /srv/data completed, 4.2 GiB, dedup ratio 3.1x
+<31>1 2026-08-31T17:09:36.646Z pi-camera-01 motion 555 msg - debug: frame buffer allocated 1280x720 at 15fps
+<30>1 2026-08-31T17:10:48.683Z pi-camera-01 motion 555 msg - motion capture frame stored, 1.2 MB
+<30>1 2026-08-31T17:12:00.720Z router-01 ospfd 611 msg - adjacency with neighbor 10.0.1.2 established on eth0
+<31>1 2026-08-31T17:13:12.757Z web-01 nginx 1421 msg - debug: parsed cache control header directives
+<134>1 2026-08-31T17:14:24.794Z power-meter-01 agent 31 metrics [metrics power=1180 voltage=230.1] power draw within expected band
+<30>1 2026-08-31T17:15:36.831Z rpi-monitor-01 vcgencmd 330 msg - thermal throttle cleared, frequency scaling resumed
+<30>1 2026-08-31T17:16:48.868Z rpi-monitor-01 vcgencmd 330 msg - thermal throttle cleared, frequency scaling resumed
+<30>1 2026-08-31T17:18:00.905Z dns-01 named 441 msg - zone example.com transfer completed in 0.42s
+<30>1 2026-08-31T17:19:12.942Z rpi-monitor-01 vcgencmd 330 msg - thermal throttle cleared, frequency scaling resumed
+<78>1 2026-08-31T17:20:24.979Z backup-01 borg 771 msg - backup of /srv/data completed, 4.2 GiB, dedup ratio 3.1x
+<131>1 2026-08-31T17:21:37.016Z power-meter-01 agent 31 metrics [metrics power=95] power reading flagged as unreasonable
+<31>1 2026-08-31T17:22:49.053Z router-01 iptables 611 msg - debug: rule chain FORWARD matched packet from 10.0.0.0/24
+<30>1 2026-08-31T17:24:01.090Z pi-smarthome homeassistant 907 msg - entity kitchen-light state changed to on
+<30>1 2026-08-31T17:25:12.127Z dns-01 named 441 msg - zone example.com transfer completed in 0.42s
+<134>1 2026-08-31T17:26:24.164Z weather-station-01 agent 27 metrics [metrics wind=3.2 rain=0.0] wind and precipitation sample ok
+<30>1 2026-08-31T17:27:36.201Z nas-01 smbd 1022 msg - SMB session opened by user backup-service for share /public
+<134>1 2026-08-31T17:28:48.238Z temperature-sensor-01 agent 18 metrics [metrics temp="21.3" hum="55.1"] sample within normal range
+<134>1 2026-08-31T17:30:00.275Z garden-sensor-01 agent 23 metrics [metrics soil=42.0 light=71.2] soil moisture and light sample ok
+<134>1 2026-08-31T17:31:12.312Z weather-station-01 agent 27 metrics [metrics wind=3.2 rain=0.0] wind and precipitation sample ok
+<134>1 2026-08-31T17:32:24.349Z weather-station-01 agent 27 metrics [metrics wind=3.2 rain=0.0] wind and precipitation sample ok
+<78>1 2026-08-31T17:33:36.386Z backup-01 borg 771 msg - backup of /srv/data completed, 4.2 GiB, dedup ratio 3.1x
+<30>1 2026-08-31T17:34:48.423Z dns-01 named 441 msg - zone example.com transfer completed in 0.42s
+<134>1 2026-08-31T17:36:00.460Z weather-station-01 agent 27 metrics [metrics wind=3.2 rain=0.0] wind and precipitation sample ok
+<30>1 2026-08-31T17:37:12.497Z dns-01 named 441 msg - zone example.com transfer completed in 0.42s
+<30>1 2026-08-31T17:38:24.534Z dns-01 named 441 msg - zone example.com transfer completed in 0.42s
+<30>1 2026-08-31T17:39:36.571Z dns-01 named 441 msg - zone example.com transfer completed in 0.42s
+<30>1 2026-08-31T17:40:48.608Z web-01 apache2 890 msg - client 10.0.0.55 completed TLS handshake on virtualhost www.example.com
+<74>1 2026-08-31T17:42:00.645Z backup-01 borg 771 msg - backup repository missing dedup index, integrity suspect
+<30>1 2026-08-31T17:43:12.682Z web-01 apache2 890 msg - client 10.0.0.55 completed TLS handshake on virtualhost www.example.com
+<30>1 2026-08-31T17:44:24.719Z router-01 dhcpd 822 msg - DHCPOFFER 192.168.1.42 to 5c:8a:ef:12:9b:7f via eth1
+<30>1 2026-08-31T17:45:36.756Z switch-02 snmpd 344 msg - SNMP trap sent: linkUp on port Gi0/12 (speed 1Gbps)
+<30>1 2026-08-31T17:46:48.793Z mail-01 postfix 1337 msg - queue recovered; all deferred messages flushed
+<30>1 2026-08-31T17:48:00.830Z dns-01 named 441 msg - zone example.com transfer completed in 0.42s
+<27>1 2026-08-31T17:49:12.867Z dns-01 named 441 msg - query for example.org timed out, retrying via root server
+<134>1 2026-08-31T17:50:24.904Z weather-station-01 agent 27 metrics [metrics wind=3.2 rain=0.0] wind and precipitation sample ok
+<134>1 2026-08-31T17:51:36.941Z temperature-sensor-01 agent 18 metrics [metrics temp="21.3" hum="55.1"] sample within normal range
+<30>1 2026-08-31T17:52:48.978Z dns-01 named 441 msg - zone example.com transfer completed in 0.42s
+<30>1 2026-08-31T17:54:01.015Z pi-camera-01 motion 555 msg - motion capture frame stored, 1.2 MB
+<30>1 2026-08-31T17:55:13.052Z mail-01 postfix 1337 msg - queue recovered; all deferred messages flushed
+<31>1 2026-08-31T17:56:25.089Z rpi-monitor-01 sensors 402 msg - debug: reading temp sensor /sys/class/thermal/thermal_zone0
+<30>1 2026-08-31T17:57:36.126Z web-01 apache2 890 msg - client 10.0.0.55 completed TLS handshake on virtualhost www.example.com
+<30>1 2026-08-31T17:58:48.163Z mail-01 postfix 1337 msg - queue recovered; all deferred messages flushed
+<30>1 2026-08-31T18:00:00.200Z dns-01 named 441 msg - zone example.com transfer completed in 0.42s
+<31>1 2026-08-31T18:01:12.237Z dns-01 unbound 304 msg - debug: cache hit for example.org A record, TTL 3542
+<30>1 2026-08-31T18:02:24.274Z pi-smarthome homeassistant 907 msg - entity kitchen-light state changed to on
+<134>1 2026-08-31T18:03:36.311Z weather-station-01 agent 27 metrics [metrics wind=3.2 rain=0.0] wind and precipitation sample ok
+<31>1 2026-08-31T18:04:48.348Z pi-camera-01 motion 555 msg - debug: frame buffer allocated 1280x720 at 15fps
+<31>1 2026-08-31T18:06:00.385Z router-01 iptables 611 msg - debug: rule chain FORWARD matched packet from 10.0.0.0/24
+<30>1 2026-08-31T18:07:12.422Z router-01 ospfd 611 msg - adjacency with neighbor 10.0.1.2 established on eth0
+<27>1 2026-08-31T18:08:24.459Z switch-02 stp 101 msg - topology change TCN received on port Gi0/5 unexpectedly
+<134>1 2026-08-31T18:09:36.496Z temperature-sensor-01 agent 18 metrics [metrics temp="21.3" hum="55.1"] sample within normal range
+<134>1 2026-08-31T18:10:48.533Z weather-station-01 agent 27 metrics [metrics wind=3.2 rain=0.0] wind and precipitation sample ok
+<26>1 2026-08-31T18:12:00.570Z web-01 nginx 1421 msg - all upstream servers down, returning 503 for 2 minutes
+<2>1 2026-08-31T18:13:12.607Z nas-01 mdadm 0 msg - RAID1 array /dev/md0 degraded, 1 of 2 devices failed
+<134>1 2026-08-31T18:14:24.644Z power-meter-01 agent 31 metrics [metrics power=1180 voltage=230.1] power draw within expected band
+<30>1 2026-08-31T18:15:36.681Z dns-01 named 441 msg - zone example.com transfer completed in 0.42s
+<30>1 2026-08-31T18:16:48.718Z nas-01 smbd 1022 msg - SMB session opened by user backup-service for share /public
+<30>1 2026-08-31T18:18:00.755Z dns-01 named 441 msg - zone example.com transfer completed in 0.42s
+<30>1 2026-08-31T18:19:12.792Z rpi-monitor-01 vcgencmd 330 msg - thermal throttle cleared, frequency scaling resumed
+<30>1 2026-08-31T18:20:24.829Z web-01 apache2 890 msg - client 10.0.0.55 completed TLS handshake on virtualhost www.example.com
+<30>1 2026-08-31T18:21:36.866Z pi-smarthome homeassistant 907 msg - entity kitchen-light state changed to on
+<31>1 2026-08-31T18:22:48.903Z pi-camera-01 motion 555 msg - debug: frame buffer allocated 1280x720 at 15fps
+<30>1 2026-08-31T18:24:00.940Z web-01 apache2 890 msg - client 10.0.0.55 completed TLS handshake on virtualhost www.example.com
+<30>1 2026-08-31T18:25:12.977Z db-01 postgres 988 msg - autovacuum finished on table orders, 1540 tuples processed
+<134>1 2026-08-31T18:26:25.014Z temperature-sensor-01 agent 18 metrics [metrics temp="21.3" hum="55.1"] sample within normal range
+<30>1 2026-08-31T18:27:37.051Z router-01 dhcpd 822 msg - DHCPOFFER 192.168.1.42 to 5c:8a:ef:12:9b:7f via eth1
+<30>1 2026-08-31T18:28:49.088Z nas-01 smbd 1022 msg - SMB session opened by user backup-service for share /public
+<131>1 2026-08-31T18:30:00.125Z power-meter-01 agent 31 metrics [metrics power=95] power reading flagged as unreasonable
+<30>1 2026-08-31T18:31:12.162Z web-01 nginx 1421 msg - upstream backend health check passed for api.internal
+<30>1 2026-08-31T18:32:24.199Z mail-01 postfix 1337 msg - queue recovered; all deferred messages flushed
+<30>1 2026-08-31T18:33:36.236Z rpi-monitor-01 vcgencmd 330 msg - thermal throttle cleared, frequency scaling resumed
+<78>1 2026-08-31T18:34:48.273Z backup-01 borg 771 msg - backup of /srv/data completed, 4.2 GiB, dedup ratio 3.1x
+<30>1 2026-08-31T18:36:00.310Z db-01 mysqld 1204 msg - slow query optimized, execution time back to 18ms
+<31>1 2026-08-31T18:37:12.347Z dns-01 unbound 304 msg - debug: cache hit for example.org A record, TTL 3542
+<134>1 2026-08-31T18:38:24.384Z power-meter-01 agent 31 metrics [metrics power=1180 voltage=230.1] power draw within expected band
+<78>1 2026-08-31T18:39:36.421Z backup-01 borg 771 msg - backup of /srv/data completed, 4.2 GiB, dedup ratio 3.1x
+<30>1 2026-08-31T18:40:48.458Z mail-01 postfix 1337 msg - queue recovered; all deferred messages flushed
+<26>1 2026-08-31T18:42:00.495Z db-01 postgres 988 msg - disk space on /pgdata below 5%, engine entering read-only
+<28>1 2026-08-31T18:43:12.532Z switch-02 snmpd 344 msg - port Gi0/8 bandwidth utilization above 85% for 5min
+<30>1 2026-08-31T18:44:24.569Z pi-smarthome homeassistant 907 msg - entity kitchen-light state changed to on
+<78>1 2026-08-31T18:45:36.606Z backup-01 borg 771 msg - backup of /srv/data completed, 4.2 GiB, dedup ratio 3.1x
+<31>1 2026-08-31T18:46:48.643Z switch-02 lldpd 501 msg - debug: neighbor discovered on Gi0/12: host pi-camera-01
+<30>1 2026-08-31T18:48:00.680Z mail-01 postfix 1337 msg - queue recovered; all deferred messages flushed
+<134>1 2026-08-31T18:49:12.717Z weather-station-01 agent 27 metrics [metrics wind=3.2 rain=0.0] wind and precipitation sample ok
+<131>1 2026-08-31T18:50:24.754Z power-meter-01 agent 31 metrics [metrics power=95] power reading flagged as unreasonable
+<134>1 2026-08-31T18:51:36.791Z power-meter-01 agent 31 metrics [metrics power=1180 voltage=230.1] power draw within expected band
+<134>1 2026-08-31T18:52:48.828Z power-meter-01 agent 31 metrics [metrics power=1180 voltage=230.1] power draw within expected band
+<30>1 2026-08-31T18:54:00.865Z pi-camera-01 motion 555 msg - motion capture frame stored, 1.2 MB
+<134>1 2026-08-31T18:55:12.902Z temperature-sensor-01 agent 18 metrics [metrics temp="21.3" hum="55.1"] sample within normal range
+<78>1 2026-08-31T18:56:24.939Z backup-01 borg 771 msg - backup of /srv/data completed, 4.2 GiB, dedup ratio 3.1x
+<26>1 2026-08-31T18:57:36.976Z router-01 ospfd 611 msg - neighbor 10.0.1.2 state changed to Down on core link eth0
+<30>1 2026-08-31T18:58:49.013Z pi-camera-01 motion 555 msg - motion capture frame stored, 1.2 MB
+<134>1 2026-08-31T19:00:01.050Z weather-station-01 agent 27 metrics [metrics wind=3.2 rain=0.0] wind and precipitation sample ok
+<30>1 2026-08-31T19:01:13.087Z pi-smarthome homeassistant 907 msg - entity kitchen-light state changed to on
+<30>1 2026-08-31T19:02:24.124Z db-01 mysqld 1204 msg - slow query optimized, execution time back to 18ms
+<78>1 2026-08-31T19:03:36.161Z backup-01 borg 771 msg - backup of /srv/data completed, 4.2 GiB, dedup ratio 3.1x
+<78>1 2026-08-31T19:04:48.198Z backup-01 borg 771 msg - backup of /srv/data completed, 4.2 GiB, dedup ratio 3.1x
+<30>1 2026-08-31T19:06:00.235Z db-01 postgres 988 msg - autovacuum finished on table orders, 1540 tuples processed
+<30>1 2026-08-31T19:07:12.272Z db-01 mysqld 1204 msg - slow query optimized, execution time back to 18ms
+<134>1 2026-08-31T19:08:24.309Z temperature-sensor-01 agent 18 metrics [metrics temp="21.3" hum="55.1"] sample within normal range
+<28>1 2026-08-31T19:09:36.346Z mail-01 postfix 1337 msg - greylist delay growing, average queue warm-up 45s
+<25>1 2026-08-31T19:10:48.383Z db-01 postgres 988 msg - replication stream interrupted, WAL lag growing beyond 5 minutes
+<30>1 2026-08-31T19:12:00.420Z db-01 postgres 988 msg - autovacuum finished on table orders, 1540 tuples processed
+<30>1 2026-08-31T19:13:12.457Z mail-01 postfix 1337 msg - queue recovered; all deferred messages flushed
+<78>1 2026-08-31T19:14:24.494Z backup-01 borg 771 msg - backup of /srv/data completed, 4.2 GiB, dedup ratio 3.1x
+<134>1 2026-08-31T19:15:36.531Z power-meter-01 agent 31 metrics [metrics power=1180 voltage=230.1] power draw within expected band
+<78>1 2026-08-31T19:16:48.568Z backup-01 borg 771 msg - backup of /srv/data completed, 4.2 GiB, dedup ratio 3.1x
+<134>1 2026-08-31T19:18:00.605Z power-meter-01 agent 31 metrics [metrics power=1180 voltage=230.1] power draw within expected band
+<30>1 2026-08-31T19:19:12.642Z web-01 nginx 1421 msg - upstream backend health check passed for api.internal
+<134>1 2026-08-31T19:20:24.679Z weather-station-01 agent 27 metrics [metrics wind=3.2 rain=0.0] wind and precipitation sample ok
+<30>1 2026-08-31T19:21:36.716Z dns-01 named 441 msg - zone example.com transfer completed in 0.42s
+<31>1 2026-08-31T19:22:48.753Z router-01 iptables 611 msg - debug: rule chain FORWARD matched packet from 10.0.0.0/24
+<31>1 2026-08-31T19:24:00.790Z router-01 iptables 611 msg - debug: rule chain FORWARD matched packet from 10.0.0.0/24
+<134>1 2026-08-31T19:25:12.827Z temperature-sensor-01 agent 18 metrics [metrics temp="21.3" hum="55.1"] sample within normal range
+<134>1 2026-08-31T19:26:24.864Z garden-sensor-01 agent 23 metrics [metrics soil=42.0 light=71.2] soil moisture and light sample ok
+<37>1 2026-08-31T19:27:36.901Z web-01 sshd 773 msg - new connection from 10.0.0.20 with key ED25519 SHA256:...
+<132>1 2026-08-31T19:28:48.938Z garden-sensor-01 agent 23 metrics [metrics soil=12.0] soil moisture below irrigation threshold
+<30>1 2026-08-31T19:30:00.975Z rpi-monitor-01 vcgencmd 330 msg - thermal throttle cleared, frequency scaling resumed
+<30>1 2026-08-31T19:31:13.012Z pi-camera-01 motion 555 msg - motion capture frame stored, 1.2 MB
+<30>1 2026-08-31T19:32:25.049Z router-01 dhcpd 822 msg - DHCPOFFER 192.168.1.42 to 5c:8a:ef:12:9b:7f via eth1
+<134>1 2026-08-31T19:33:37.086Z temperature-sensor-01 agent 18 metrics [metrics temp="21.3" hum="55.1"] sample within normal range
+<27>1 2026-08-31T19:34:48.123Z router-01 dhcpd 822 msg - failed to write lease to /var/lib/dhcp/dhcpd.leases
+<30>1 2026-08-31T19:36:00.160Z dns-01 named 441 msg - zone example.com transfer completed in 0.42s
+<30>1 2026-08-31T19:37:12.197Z db-01 postgres 988 msg - autovacuum finished on table orders, 1540 tuples processed
+<31>1 2026-08-31T19:38:24.234Z rpi-monitor-01 sensors 402 msg - debug: reading temp sensor /sys/class/thermal/thermal_zone0
+<134>1 2026-08-31T19:39:36.271Z weather-station-01 agent 27 metrics [metrics wind=3.2 rain=0.0] wind and precipitation sample ok
+<30>1 2026-08-31T19:40:48.308Z router-01 ospfd 611 msg - adjacency with neighbor 10.0.1.2 established on eth0
+<134>1 2026-08-31T19:42:00.345Z temperature-sensor-01 agent 18 metrics [metrics temp="21.3" hum="55.1"] sample within normal range
+<30>1 2026-08-31T19:43:12.382Z pi-camera-01 motion 555 msg - motion capture frame stored, 1.2 MB
+<134>1 2026-08-31T19:44:24.419Z garden-sensor-01 agent 23 metrics [metrics soil=42.0 light=71.2] soil moisture and light sample ok
+<30>1 2026-08-31T19:45:36.456Z web-01 apache2 890 msg - client 10.0.0.55 completed TLS handshake on virtualhost www.example.com
+<134>1 2026-08-31T19:46:48.493Z weather-station-01 agent 27 metrics [metrics wind=3.2 rain=0.0] wind and precipitation sample ok
+<25>1 2026-08-31T19:48:00.530Z router-01 dhcpd 822 msg - address pool exhausted on eth1, cannot allocate lease
+<30>1 2026-08-31T19:49:12.567Z router-01 dhcpd 822 msg - DHCPOFFER 192.168.1.42 to 5c:8a:ef:12:9b:7f via eth1
+<30>1 2026-08-31T19:50:24.604Z db-01 mysqld 1204 msg - slow query optimized, execution time back to 18ms
+<29>1 2026-08-31T19:51:36.641Z rpi-monitor-01 systemd 1 msg - time zone changed to Europe/Berlin for user pi
+<30>1 2026-08-31T19:52:48.678Z pi-camera-01 motion 555 msg - motion capture frame stored, 1.2 MB
+<29>1 2026-08-31T19:54:00.715Z router-01 ntpd 402 msg - system clock synchronized with 192.168.1.1, offset 0.8ms
+<134>1 2026-08-31T19:55:12.752Z weather-station-01 agent 27 metrics [metrics wind=3.2 rain=0.0] wind and precipitation sample ok
+<30>1 2026-08-31T19:56:24.789Z rpi-monitor-01 vcgencmd 330 msg - thermal throttle cleared, frequency scaling resumed
+<25>1 2026-08-31T19:57:36.826Z switch-02 snmpd 344 msg - trap received: unexpected linkDown on trunk port Gi0/1
+<30>1 2026-08-31T19:58:48.863Z db-01 postgres 988 msg - autovacuum finished on table orders, 1540 tuples processed
+<30>1 2026-08-31T20:00:00.900Z router-01 dhcpd 822 msg - DHCPOFFER 192.168.1.42 to 5c:8a:ef:12:9b:7f via eth1
+<31>1 2026-08-31T20:01:12.937Z router-01 iptables 611 msg - debug: rule chain FORWARD matched packet from 10.0.0.0/24
+<37>1 2026-08-31T20:02:24.974Z web-01 sshd 773 msg - new connection from 10.0.0.20 with key ED25519 SHA256:...
+<30>1 2026-08-31T20:03:37.011Z db-01 mysqld 1204 msg - slow query optimized, execution time back to 18ms
+<25>1 2026-08-31T20:04:49.048Z switch-02 snmpd 344 msg - trap received: unexpected linkDown on trunk port Gi0/1
+<30>1 2026-08-31T20:06:01.085Z web-01 apache2 890 msg - client 10.0.0.55 completed TLS handshake on virtualhost www.example.com
+<26>1 2026-08-31T20:07:12.122Z web-01 nginx 1421 msg - all upstream servers down, returning 503 for 2 minutes
+<30>1 2026-08-31T20:08:24.159Z rpi-monitor-01 vcgencmd 330 msg - thermal throttle cleared, frequency scaling resumed
+<30>1 2026-08-31T20:09:36.196Z pi-camera-01 motion 555 msg - motion capture frame stored, 1.2 MB
+<28>1 2026-08-31T20:10:48.233Z mail-01 postfix 1337 msg - greylist delay growing, average queue warm-up 45s
+<30>1 2026-08-31T20:12:00.270Z db-01 postgres 988 msg - autovacuum finished on table orders, 1540 tuples processed
+<134>1 2026-08-31T20:13:12.307Z garden-sensor-01 agent 23 metrics [metrics soil=42.0 light=71.2] soil moisture and light sample ok
+<131>1 2026-08-31T20:14:24.344Z power-meter-01 agent 31 metrics [metrics power=95] power reading flagged as unreasonable
+<29>1 2026-08-31T20:15:36.381Z nas-01 smartd 718 msg - SMART self-test of /dev/sda completed without errors
+<29>1 2026-08-31T20:16:48.418Z pi-smarthome zigbee2mqtt 205 msg - zigbee coordinator restarted, 28 devices re-paired
+<28>1 2026-08-31T20:18:00.455Z mail-01 postfix 1337 msg - greylist delay growing, average queue warm-up 45s
+<135>1 2026-08-31T20:19:12.492Z weather-station-01 agent 27 metrics [metrics wind=3.2] debug: raw ADC value for anemometer=1984
+<30>1 2026-08-31T20:20:24.529Z pi-smarthome homeassistant 907 msg - entity kitchen-light state changed to on
+<134>1 2026-08-31T20:21:36.566Z weather-station-01 agent 27 metrics [metrics wind=3.2 rain=0.0] wind and precipitation sample ok
+<30>1 2026-08-31T20:22:48.603Z web-01 nginx 1421 msg - upstream backend health check passed for api.internal
+<30>1 2026-08-31T20:24:00.640Z dns-01 named 441 msg - zone example.com transfer completed in 0.42s
+<30>1 2026-08-31T20:25:12.677Z nas-01 smbd 1022 msg - SMB session opened by user backup-service for share /public
+<30>1 2026-08-31T20:26:24.714Z dns-01 named 441 msg - zone example.com transfer completed in 0.42s
+<30>1 2026-08-31T20:27:36.751Z web-01 nginx 1421 msg - upstream backend health check passed for api.internal
+<30>1 2026-08-31T20:28:48.788Z db-01 postgres 988 msg - autovacuum finished on table orders, 1540 tuples processed
+<134>1 2026-08-31T20:30:00.825Z garden-sensor-01 agent 23 metrics [metrics soil=42.0 light=71.2] soil moisture and light sample ok
+<30>1 2026-08-31T20:31:12.862Z db-01 mysqld 1204 msg - slow query optimized, execution time back to 18ms
+<30>1 2026-08-31T20:32:24.899Z mail-01 postfix 1337 msg - queue recovered; all deferred messages flushed
+<134>1 2026-08-31T20:33:36.936Z weather-station-01 agent 27 metrics [metrics wind=3.2 rain=0.0] wind and precipitation sample ok
+<30>1 2026-08-31T20:34:48.973Z router-01 dhcpd 822 msg - DHCPOFFER 192.168.1.42 to 5c:8a:ef:12:9b:7f via eth1
+<30>1 2026-08-31T20:36:01.010Z web-01 nginx 1421 msg - upstream backend health check passed for api.internal
+<30>1 2026-08-31T20:37:13.047Z web-01 apache2 890 msg - client 10.0.0.55 completed TLS handshake on virtualhost www.example.com
+<30>1 2026-08-31T20:38:25.084Z db-01 mysqld 1204 msg - slow query optimized, execution time back to 18ms
+<30>1 2026-08-31T20:39:36.121Z rpi-monitor-01 vcgencmd 330 msg - thermal throttle cleared, frequency scaling resumed
+<30>1 2026-08-31T20:40:48.158Z db-01 postgres 988 msg - autovacuum finished on table orders, 1540 tuples processed
+<30>1 2026-08-31T20:42:00.195Z nas-01 smbd 1022 msg - SMB session opened by user backup-service for share /public
+<30>1 2026-08-31T20:43:12.232Z dns-01 named 441 msg - zone example.com transfer completed in 0.42s
+<30>1 2026-08-31T20:44:24.269Z switch-02 snmpd 344 msg - SNMP trap sent: linkUp on port Gi0/12 (speed 1Gbps)
+<132>1 2026-08-31T20:45:36.306Z garden-sensor-01 agent 23 metrics [metrics soil=12.0] soil moisture below irrigation threshold
+<30>1 2026-08-31T20:46:48.343Z router-01 ospfd 611 msg - adjacency with neighbor 10.0.1.2 established on eth0
+<30>1 2026-08-31T20:48:00.380Z nas-01 smbd 1022 msg - SMB session opened by user backup-service for share /public
+<30>1 2026-08-31T20:49:12.417Z pi-camera-01 motion 555 msg - motion capture frame stored, 1.2 MB
+<30>1 2026-08-31T20:50:24.454Z router-01 ospfd 611 msg - adjacency with neighbor 10.0.1.2 established on eth0
+<134>1 2026-08-31T20:51:36.491Z garden-sensor-01 agent 23 metrics [metrics soil=42.0 light=71.2] soil moisture and light sample ok
+<30>1 2026-08-31T20:52:48.528Z router-01 ospfd 611 msg - adjacency with neighbor 10.0.1.2 established on eth0
+<30>1 2026-08-31T20:54:00.565Z rpi-monitor-01 vcgencmd 330 msg - thermal throttle cleared, frequency scaling resumed
+<30>1 2026-08-31T20:55:12.602Z nas-01 smbd 1022 msg - SMB session opened by user backup-service for share /public
+<29>1 2026-08-31T20:56:24.639Z rpi-monitor-01 systemd 1 msg - time zone changed to Europe/Berlin for user pi
+<31>1 2026-08-31T20:57:36.676Z pi-camera-01 motion 555 msg - debug: frame buffer allocated 1280x720 at 15fps
+<30>1 2026-08-31T20:58:48.713Z pi-smarthome homeassistant 907 msg - entity kitchen-light state changed to on
+<31>1 2026-08-31T21:00:00.750Z web-01 nginx 1421 msg - debug: parsed cache control header directives
+<30>1 2026-08-31T21:01:12.787Z mail-01 postfix 1337 msg - queue recovered; all deferred messages flushed
+<30>1 2026-08-31T21:02:24.824Z pi-camera-01 motion 555 msg - motion capture frame stored, 1.2 MB
+<78>1 2026-08-31T21:03:36.861Z backup-01 borg 771 msg - backup of /srv/data completed, 4.2 GiB, dedup ratio 3.1x
+<30>1 2026-08-31T21:04:48.898Z db-01 postgres 988 msg - autovacuum finished on table orders, 1540 tuples processed
+<30>1 2026-08-31T21:06:00.935Z pi-smarthome homeassistant 907 msg - entity kitchen-light state changed to on
+<134>1 2026-08-31T21:07:12.972Z garden-sensor-01 agent 23 metrics [metrics soil=42.0 light=71.2] soil moisture and light sample ok
+<30>1 2026-08-31T21:08:25.009Z pi-smarthome homeassistant 907 msg - entity kitchen-light state changed to on
+<28>1 2026-08-31T21:09:37.046Z rpi-monitor-01 sensors 402 msg - CPU temperature reached 72C, fan turned on
+<30>1 2026-08-31T21:10:49.083Z web-01 nginx 1421 msg - upstream backend health check passed for api.internal
+<27>1 2026-08-31T21:12:00.120Z router-01 dhcpd 822 msg - failed to write lease to /var/lib/dhcp/dhcpd.leases
+<31>1 2026-08-31T21:13:12.157Z web-01 nginx 1421 msg - debug: parsed cache control header directives
+<134>1 2026-08-31T21:14:24.194Z garden-sensor-01 agent 23 metrics [metrics soil=42.0 light=71.2] soil moisture and light sample ok
+<30>1 2026-08-31T21:15:36.231Z web-01 apache2 890 msg - client 10.0.0.55 completed TLS handshake on virtualhost www.example.com
+<30>1 2026-08-31T21:16:48.268Z rpi-monitor-01 vcgencmd 330 msg - thermal throttle cleared, frequency scaling resumed
+<135>1 2026-08-31T21:18:00.305Z weather-station-01 agent 27 metrics [metrics wind=3.2] debug: raw ADC value for anemometer=1984
+<30>1 2026-08-31T21:19:12.342Z dns-01 named 441 msg - zone example.com transfer completed in 0.42s
+<30>1 2026-08-31T21:20:24.379Z switch-02 snmpd 344 msg - SNMP trap sent: linkUp on port Gi0/12 (speed 1Gbps)
+<30>1 2026-08-31T21:21:36.416Z router-01 ospfd 611 msg - adjacency with neighbor 10.0.1.2 established on eth0
+<30>1 2026-08-31T21:22:48.453Z rpi-monitor-01 vcgencmd 330 msg - thermal throttle cleared, frequency scaling resumed
+<30>1 2026-08-31T21:24:00.490Z nas-01 smbd 1022 msg - SMB session opened by user backup-service for share /public
+<30>1 2026-08-31T21:25:12.527Z router-01 dhcpd 822 msg - DHCPOFFER 192.168.1.42 to 5c:8a:ef:12:9b:7f via eth1
+<134>1 2026-08-31T21:26:24.564Z power-meter-01 agent 31 metrics [metrics power=1180 voltage=230.1] power draw within expected band
+<30>1 2026-08-31T21:27:36.601Z web-01 nginx 1421 msg - upstream backend health check passed for api.internal
+<31>1 2026-08-31T21:28:48.638Z switch-02 lldpd 501 msg - debug: neighbor discovered on Gi0/12: host pi-camera-01
+<31>1 2026-08-31T21:30:00.675Z rpi-monitor-01 sensors 402 msg - debug: reading temp sensor /sys/class/thermal/thermal_zone0
+<30>1 2026-08-31T21:31:12.712Z rpi-monitor-01 vcgencmd 330 msg - thermal throttle cleared, frequency scaling resumed
+<31>1 2026-08-31T21:32:24.749Z pi-smarthome homeassistant 907 msg - debug: discovered new entity zwave/sensor/0x1421/level
+<31>1 2026-08-31T21:33:36.786Z switch-02 lldpd 501 msg - debug: neighbor discovered on Gi0/12: host pi-camera-01
+<78>1 2026-08-31T21:34:48.823Z backup-01 borg 771 msg - backup of /srv/data completed, 4.2 GiB, dedup ratio 3.1x
+<25>1 2026-08-31T21:36:00.860Z switch-02 snmpd 344 msg - trap received: unexpected linkDown on trunk port Gi0/1
+<30>1 2026-08-31T21:37:12.897Z db-01 mysqld 1204 msg - slow query optimized, execution time back to 18ms
+<134>1 2026-08-31T21:38:24.934Z weather-station-01 agent 27 metrics [metrics wind=3.2 rain=0.0] wind and precipitation sample ok
+<31>1 2026-08-31T21:39:36.971Z rpi-monitor-01 sensors 402 msg - debug: reading temp sensor /sys/class/thermal/thermal_zone0
+<30>1 2026-08-31T21:40:49.008Z pi-camera-01 motion 555 msg - motion capture frame stored, 1.2 MB
+<134>1 2026-08-31T21:42:01.045Z garden-sensor-01 agent 23 metrics [metrics soil=42.0 light=71.2] soil moisture and light sample ok
+<30>1 2026-08-31T21:43:13.082Z db-01 postgres 988 msg - autovacuum finished on table orders, 1540 tuples processed
+<30>1 2026-08-31T21:44:24.119Z db-01 postgres 988 msg - autovacuum finished on table orders, 1540 tuples processed
+<131>1 2026-08-31T21:45:36.156Z power-meter-01 agent 31 metrics [metrics power=95] power reading flagged as unreasonable
+<134>1 2026-08-31T21:46:48.193Z power-meter-01 agent 31 metrics [metrics power=1180 voltage=230.1] power draw within expected band
+<2>1 2026-08-31T21:48:00.230Z nas-01 mdadm 0 msg - RAID1 array /dev/md0 degraded, 1 of 2 devices failed
+<30>1 2026-08-31T21:49:12.267Z web-01 nginx 1421 msg - upstream backend health check passed for api.internal
+<29>1 2026-08-31T21:50:24.304Z db-01 mysqld 1204 msg - replication slave caught up with master after 12s lag
+<26>1 2026-08-31T21:51:36.341Z db-01 postgres 988 msg - disk space on /pgdata below 5%, engine entering read-only
+<30>1 2026-08-31T21:52:48.378Z web-01 apache2 890 msg - client 10.0.0.55 completed TLS handshake on virtualhost www.example.com
+<30>1 2026-08-31T21:54:00.415Z router-01 dhcpd 822 msg - DHCPOFFER 192.168.1.42 to 5c:8a:ef:12:9b:7f via eth1
+<29>1 2026-08-31T21:55:12.452Z pi-smarthome zigbee2mqtt 205 msg - zigbee coordinator restarted, 28 devices re-paired
+<30>1 2026-08-31T21:56:24.489Z mail-01 postfix 1337 msg - queue recovered; all deferred messages flushed
+<30>1 2026-08-31T21:57:36.526Z rpi-monitor-01 vcgencmd 330 msg - thermal throttle cleared, frequency scaling resumed
+<30>1 2026-08-31T21:58:48.563Z router-01 dhcpd 822 msg - DHCPOFFER 192.168.1.42 to 5c:8a:ef:12:9b:7f via eth1
