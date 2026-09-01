@@ -154,21 +154,23 @@ online/offline badge are shown in the header.
 
 ### Environment variables (syslogd_web)
 
-The viewer is configured with `SYSLOGD_WEB_*` environment variables:
+The viewer reads its port from `SYSLOGD_WEB_PORT` and shares the log file and
+history settings with the server (`SYSLOGD_LOG_FILE` and
+`SYSLOGD_MAX_LOG_FILES`):
 
 | Variable | Description | Default |
 | -------- | ----------- | ------- |
 | `SYSLOGD_WEB_PORT` | HTTP port to bind | `8090` |
-| `SYSLOGD_WEB_LOG_FILE` | Log file to read (plus its rotated history) | `/var/log/custom_syslog.log` |
-| `SYSLOGD_WEB_MAX_LOG_FILES` | Number of rotated history files to include | `5` |
+| `SYSLOGD_LOG_FILE` | Log file (plus its rotated history) | `/var/log/custom_syslog.log` |
+| `SYSLOGD_MAX_LOG_FILES` | Number of rotated history files to include | `5` |
 
-The viewer must know how many history files the server keeps
-(`MAX_LOG_FILES`); set `SYSLOGD_WEB_MAX_LOG_FILES` to the same value so it
-shows the full history. Example:
+The viewer reads the same `SYSLOGD_LOG_FILE` and `SYSLOGD_MAX_LOG_FILES` the
+server uses, so they stay in sync automatically and the viewer shows the full
+history. Example:
 
-```
-SYSLOGD_WEB_PORT=8090 SYSLOGD_WEB_LOG_FILE=/tmp/custom.log \
-SYSLOGD_WEB_MAX_LOG_FILES=3 ./build/syslogd_web -w web
+```bash
+SYSLOGD_WEB_PORT=8090 SYSLOGD_LOG_FILE=/tmp/custom.log \
+SYSLOGD_MAX_LOG_FILES=3 ./build/syslogd_web -w web
 ```
 
 ### API (all GET)

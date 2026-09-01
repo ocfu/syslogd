@@ -21,7 +21,5 @@
 
 /* syslogd_web (viewer) environment variable names. */
 #define ENV_WEB_PORT "SYSLOGD_WEB_PORT"
-#define ENV_WEB_LOG_FILE "SYSLOGD_WEB_LOG_FILE"
-#define ENV_WEB_MAX_LOG_FILES "SYSLOGD_WEB_MAX_LOG_FILES"
 
 #endif

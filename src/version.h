@@ -2,6 +2,6 @@
 #define SYSLOGD_VERSION_H
 
 /* Single project version, shared by syslogd, syslogd_client and syslogd_web. */
-#define SYSLOGD_VERSION "0.0.3"
+#define SYSLOGD_VERSION "0.0.4"
 
 #endif /* SYSLOGD_VERSION_H */

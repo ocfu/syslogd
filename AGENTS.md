@@ -64,8 +64,8 @@ make clean
   ```
 
   Options: `-w <dir>` (default `web`), `-V`. Env vars:
-  `SYSLOGD_WEB_PORT` (default 8090), `SYSLOGD_WEB_LOG_FILE`,
-  `SYSLOGD_WEB_MAX_LOG_FILES` (default 5, must match the server).
+  `SYSLOGD_WEB_PORT` (default 8090); shares `SYSLOGD_LOG_FILE` and
+  `SYSLOGD_MAX_LOG_FILES` with the server.
 
 ## Verify
 
@@ -124,9 +124,8 @@ make clean
   `<logfile>.1` … `<logfile>.N` with `.N` oldest.
 - **Web viewer history**: `syslogd_web` reads the rotated history
   (`<logfile>.N` … `<logfile>.1`) plus the current log in `/api/log` and the
-  `/api/stream` initial snapshot, using `SYSLOGD_WEB_MAX_LOG_FILES` (must match
-  the server's `SYSLOGD_MAX_LOG_FILES`). The demo (`/demo`) uses only the
-  bundled sample log, no history.
+  `/api/stream` initial snapshot, using the same `SYSLOGD_MAX_LOG_FILES` as
+  the server. The demo (`/demo`) uses only the bundled sample log, no history.
 - **Timestamps**: written/emitted as UTC RFC 3339 with milliseconds
   (`2026-08-30T21:17:47.874Z`). The JSON API (`/api/log`, `/api/stream`)
   sends this ISO UTC string; the browser converts it to local time for

@@ -42,11 +42,11 @@
 static const char *g_szWebRoot = "web";
 static char g_szDemoLog[1024];
 
-/* Which log file the API handlers read (set from SYSLOGD_WEB_LOG_FILE or the
+/* Which log file the API handlers read (set from SYSLOGD_LOG_FILE or the
  * default, overridden per request for the demo). */
 static char g_szLogFile[512] = DEFAULT_LOG_FILE;
 static const char *g_pLogFile = DEFAULT_LOG_FILE;
-/* Number of rotated history files to include (set from SYSLOGD_WEB_MAX_LOG_FILES). */
+/* Number of rotated history files to include (set from SYSLOGD_MAX_LOG_FILES). */
 static int g_nMaxLogFiles = DEFAULT_MAX_LOG_FILES;
 /* True when the per-connection log is the singleton live file (not demo). */
 static int g_bLive = 1;
@@ -767,13 +767,13 @@ int main(int argc, char *argv[]) {
       int nValue = atoi(szEnv);
       if (nValue > 0) nPort = nValue;
    }
-   szEnv = getenv(ENV_WEB_LOG_FILE);
+   szEnv = getenv(ENV_SYSLOGD_LOG_FILE);
    if (szEnv && szEnv[0] != '\0') {
       strncpy(g_szLogFile, szEnv, sizeof(g_szLogFile) - 1);
       g_szLogFile[sizeof(g_szLogFile) - 1] = '\0';
       g_pLogFile = g_szLogFile;
    }
-   szEnv = getenv(ENV_WEB_MAX_LOG_FILES);
+   szEnv = getenv(ENV_SYSLOGD_MAX_LOG_FILES);
    if (szEnv && szEnv[0] != '\0') {
       int nValue = atoi(szEnv);
       if (nValue > 0) g_nMaxLogFiles = nValue;

@@ -79,30 +79,30 @@ such as 5514 for testing. The web viewer reads the same log file as the server
 
 ## Environment variables
 
-All configuration can also be supplied through `SYSLOGD_*` (server) and
-`SYSLOGD_WEB_*` (viewer) environment variables — convenient for systemd or
-Docker. Command-line flags take precedence where both are given.
+All configuration can also be supplied through `SYSLOGD_*` environment
+variables — convenient for systemd or Docker. Command-line flags take
+precedence where both are given. The viewer (`syslogd_web`) shares
+`SYSLOGD_LOG_FILE` and `SYSLOGD_MAX_LOG_FILES` with the server, so its log and
+history stay in sync automatically; only the web port is viewer-specific.
 
-| Variable                  | syslogd | syslogd_web | Default                     |
-| ------------------------- | :-----: | :---------: | --------------------------- |
-| `SYSLOGD_PORT`            | UDP port| —           | `514`                       |
-| `SYSLOGD_LOG_FILE`        | yes     | —           | `/var/log/custom_syslog.log`|
-| `SYSLOGD_MAX_LOG_SIZE`    | yes     | —           | `5242880` (5 MB)            |
-| `SYSLOGD_MAX_LOG_FILES`   | yes     | —           | `5`                         |
-| `SYSLOGD_WEB_PORT`        | —       | HTTP port   | `8090`                      |
-| `SYSLOGD_WEB_LOG_FILE`    | —       | yes         | `/var/log/custom_syslog.log`|
-| `SYSLOGD_WEB_MAX_LOG_FILES`| —      | yes         | `5`                         |
+| Variable | syslogd | syslogd_web | Default |
+| --- | :---: | :---: | --- |
+| `SYSLOGD_PORT` | yes | — | `514` |
+| `SYSLOGD_LOG_FILE` | yes | yes | `/var/log/custom_syslog.log` |
+| `SYSLOGD_MAX_LOG_SIZE` | yes | — | `5242880` (5 MB) |
+| `SYSLOGD_MAX_LOG_FILES` | yes | yes | `5` |
+| `SYSLOGD_WEB_PORT` | — | HTTP port | `8090` |
 
 The server names rotated history files `<logfile>.1` … `<logfile>.N` (newest
-history first, `.N` oldest). `syslogd_web` uses `SYSLOGD_WEB_MAX_LOG_FILES` to
-also read that history, so the viewer shows past segments in addition to the
-current log.
+history first, `.N` oldest). `syslogd_web` reads the same history the server
+keeps, so the viewer shows past segments in addition to the current log.
 
 Example:
 
-```
-SYSLOGD_PORT=5514 SYSLOGD_LOG_FILE=/tmp/custom.log SYSLOGD_MAX_LOG_SIZE=1048576 ./build/syslogd
-SYSLOGD_WEB_PORT=8090 SYSLOGD_WEB_LOG_FILE=/tmp/custom.log ./build/syslogd_web
+```bash
+SYSLOGD_PORT=5514 SYSLOGD_LOG_FILE=/tmp/custom.log \
+    SYSLOGD_MAX_LOG_SIZE=1048576 ./build/syslogd
+SYSLOGD_WEB_PORT=8090 SYSLOGD_LOG_FILE=/tmp/custom.log ./build/syslogd_web
 ```
 
 ## Web viewer
