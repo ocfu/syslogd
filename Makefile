@@ -13,6 +13,7 @@ SERVER_SRC := src/syslogd.c
 CLIENT_SRC := src/syslogd_client.c
 WEB_SRC    := src/syslogd_web.c
 VERSION_H  := src/version.h
+COMMON_HDR := src/syslogd_common.h
 
 ALL_TARGETS := $(SERVER) $(CLIENT) $(WEB)
 
@@ -23,13 +24,13 @@ all: $(ALL_TARGETS)
 $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)
 
-$(SERVER): $(SERVER_SRC) $(VERSION_H) | $(BUILD_DIR)
+$(SERVER): $(SERVER_SRC) $(VERSION_H) $(COMMON_HDR) | $(BUILD_DIR)
 	$(CC) $(CFLAGS) -o $@ $(SERVER_SRC)
 
 $(CLIENT): $(CLIENT_SRC) $(VERSION_H) | $(BUILD_DIR)
 	$(CC) $(CFLAGS) -o $@ $(CLIENT_SRC)
 
-$(WEB): $(WEB_SRC) $(VERSION_H) | $(BUILD_DIR)
+$(WEB): $(WEB_SRC) $(VERSION_H) $(COMMON_HDR) | $(BUILD_DIR)
 	$(CC) $(CFLAGS) -o $@ $(WEB_SRC)
 
 debug:

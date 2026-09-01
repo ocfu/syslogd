@@ -28,10 +28,10 @@
 #include <time.h>
 #include <unistd.h>
 
+#include "syslogd_common.h"
 #include "version.h"
 
 #define BUFFER_SIZE 2048
-#define MAX_LOG_SIZE (5 * 1024 * 1024)  // 5 MB
 #define PID_FILE "/var/run/custom_syslog.pid"
 #define STATUS_FILE "/var/run/custom_syslog.status"
 
@@ -46,8 +46,10 @@ const char *severity_names[] = {
     "warning", "notice", "info", "debug"};
 
 volatile sig_atomic_t running = 1;
-int syslog_port = 514;
-char log_file[256] = "/var/log/custom_syslog.log";
+int syslog_port = DEFAULT_SYSLOGD_PORT;
+char log_file[256] = DEFAULT_LOG_FILE;
+long long max_log_size = DEFAULT_MAX_LOG_SIZE;
+int max_log_files = DEFAULT_MAX_LOG_FILES;
 int run_as_daemon = 0;
 
 void handle_signal(int sig) {
@@ -80,22 +82,32 @@ void write_status_file(void) {
 
 void rotate_log_if_needed(const char *filename) {
    struct stat st;
-   if (stat(filename, &st) == 0 && st.st_size >= MAX_LOG_SIZE) {
-      time_t now = time(NULL);
-      struct tm *tm_info = localtime(&now);
+   if (stat(filename, &st) != 0 || st.st_size < max_log_size) {
+      return;
+   }
 
-      char backup_name[512];
-      strftime(backup_name, sizeof(backup_name),
-               "%Y%m%d_%H%M%S", tm_info);
+   /* Delete the oldest file beyond the retention window. */
+   char oldest[600];
+   snprintf(oldest, sizeof(oldest), "%s.%d", filename, max_log_files);
+   unlink(oldest);
 
-      char rotated[600];
-      snprintf(rotated, sizeof(rotated), "%s.%s", filename, backup_name);
-
-      if (rename(filename, rotated) == 0) {
-         syslog(LOG_INFO, "Rotated log file -> %s", rotated);
-      } else {
-         syslog(LOG_ERR, "Failed to rotate log file: %s", strerror(errno));
+   /* Shift files down: .i -> .i+1, from newest to oldest. */
+   for (int nI = max_log_files - 1; nI >= 1; nI--) {
+      char szFrom[600], szTo[600];
+      snprintf(szFrom, sizeof(szFrom), "%s.%d", filename, nI);
+      snprintf(szTo, sizeof(szTo), "%s.%d", filename, nI + 1);
+      if (rename(szFrom, szTo) != 0 && errno != ENOENT) {
+         syslog(LOG_ERR, "Failed to shift log file %s: %s", szFrom, strerror(errno));
       }
+   }
+
+   /* Move the current file to .1 and start a fresh log. */
+   char szFirst[600];
+   snprintf(szFirst, sizeof(szFirst), "%s.1", filename);
+   if (rename(filename, szFirst) == 0) {
+      syslog(LOG_INFO, "Rotated log file -> %s", szFirst);
+   } else {
+      syslog(LOG_ERR, "Failed to rotate log file: %s", strerror(errno));
    }
 }
 
@@ -251,12 +263,42 @@ void daemonize(void) {
    dup2(fd0, STDERR_FILENO);
 }
 
+void read_env_config(void) {
+   const char *szEnv;
+
+   szEnv = getenv(ENV_SYSLOGD_PORT);
+   if (szEnv && szEnv[0] != '\0') {
+      int nValue = atoi(szEnv);
+      if (nValue > 0) syslog_port = nValue;
+   }
+
+   szEnv = getenv(ENV_SYSLOGD_LOG_FILE);
+   if (szEnv && szEnv[0] != '\0') {
+      strncpy(log_file, szEnv, sizeof(log_file) - 1);
+      log_file[sizeof(log_file) - 1] = '\0';
+   }
+
+   szEnv = getenv(ENV_SYSLOGD_MAX_LOG_SIZE);
+   if (szEnv && szEnv[0] != '\0') {
+      long long llValue = atoll(szEnv);
+      if (llValue > 0) max_log_size = llValue;
+   }
+
+   szEnv = getenv(ENV_SYSLOGD_MAX_LOG_FILES);
+   if (szEnv && szEnv[0] != '\0') {
+      int nValue = atoi(szEnv);
+      if (nValue > 0) max_log_files = nValue;
+   }
+}
+
 void usage(const char *prog) {
    fprintf(stderr, "Usage: %s [-p port] [-l logfile] [-d] [-V]\n", prog);
    exit(EXIT_FAILURE);
 }
 
 int main(int argc, char *argv[]) {
+   read_env_config();
+
    int opt;
    while ((opt = getopt(argc, argv, "p:l:dV")) != -1) {
       switch (opt) {
@@ -289,8 +331,9 @@ int main(int argc, char *argv[]) {
    signal(SIGTERM, handle_signal);
    signal(SIGINT, handle_signal);
 
-   syslog(LOG_INFO, "Custom syslog server v%s started (port=%d, logfile=%s, daemon=%s)",
-          SYSLOGD_VERSION, syslog_port, log_file, run_as_daemon ? "yes" : "no");
+   syslog(LOG_INFO, "Custom syslog server v%s started (port=%d, logfile=%s, daemon=%s, max_log_size=%lld, max_log_files=%d)",
+          SYSLOGD_VERSION, syslog_port, log_file, run_as_daemon ? "yes" : "no",
+          max_log_size, max_log_files);
 
    int sockfd;
    struct sockaddr_in server_addr, client_addr;

@@ -20,11 +20,15 @@ The project builds three binaries, all sharing one version (`src/version.h`):
   Complete RFC 5424 messages are passed through unchanged; simple `<PRI>msg`
   messages are wrapped with the receive time and short hostname.
 - PRI decoding to facility and severity names
-- Automatic log rotation at 5 MB (rotated files keep a timestamp suffix)
+- Automatic numbered log rotation at a configurable max size
+  (`SYSLOGD_MAX_LOG_SIZE`), keeping a bounded history (`SYSLOGD_MAX_LOG_FILES`)
+  as `.1`, `.2`, ... `.N`
 - Daemon mode with PID file (`/var/run/custom_syslog.pid`) and a status file
   (`/var/run/custom_syslog.status`: version, pid, port, logfile)
+- Configuration via command-line flags **or** `SYSLOGD_*` environment variables
 - Graceful shutdown on SIGINT/SIGTERM
-- Test client to inject messages, web viewer to inspect the log
+- Test client to inject messages, web viewer to inspect the log and its
+  rotated history
 - Shared version for all tools: `-V` prints `SYSLOGD_VERSION` from `src/version.h`
 
 ## Requirements
@@ -69,9 +73,37 @@ View the log in a browser:
 All binaries print their option set via `-h` and their version via `-V`
 (see [docs/usage.md](docs/usage.md) for the full reference). Environment note:
 listening on the default port 514 requires root privileges; use a high port
-such as 5514 for testing. The web viewer reads the compile-time default log
-`/var/log/custom_syslog.log`, so start the server with
-`-l /var/log/custom_syslog.log` to feed it.
+such as 5514 for testing. The web viewer reads the same log file as the server
+(`/var/log/custom_syslog.log` by default), so start the server with
+`-l /var/log/custom_syslog.log` (or `SYSLOGD_LOG_FILE`) to feed it.
+
+## Environment variables
+
+All configuration can also be supplied through `SYSLOGD_*` (server) and
+`SYSLOGD_WEB_*` (viewer) environment variables — convenient for systemd or
+Docker. Command-line flags take precedence where both are given.
+
+| Variable                  | syslogd | syslogd_web | Default                     |
+| ------------------------- | :-----: | :---------: | --------------------------- |
+| `SYSLOGD_PORT`            | UDP port| —           | `514`                       |
+| `SYSLOGD_LOG_FILE`        | yes     | —           | `/var/log/custom_syslog.log`|
+| `SYSLOGD_MAX_LOG_SIZE`    | yes     | —           | `5242880` (5 MB)            |
+| `SYSLOGD_MAX_LOG_FILES`   | yes     | —           | `5`                         |
+| `SYSLOGD_WEB_PORT`        | —       | HTTP port   | `8090`                      |
+| `SYSLOGD_WEB_LOG_FILE`    | —       | yes         | `/var/log/custom_syslog.log`|
+| `SYSLOGD_WEB_MAX_LOG_FILES`| —      | yes         | `5`                         |
+
+The server names rotated history files `<logfile>.1` … `<logfile>.N` (newest
+history first, `.N` oldest). `syslogd_web` uses `SYSLOGD_WEB_MAX_LOG_FILES` to
+also read that history, so the viewer shows past segments in addition to the
+current log.
+
+Example:
+
+```
+SYSLOGD_PORT=5514 SYSLOGD_LOG_FILE=/tmp/custom.log SYSLOGD_MAX_LOG_SIZE=1048576 ./build/syslogd
+SYSLOGD_WEB_PORT=8090 SYSLOGD_WEB_LOG_FILE=/tmp/custom.log ./build/syslogd_web
+```
 
 ## Web viewer
 
@@ -93,8 +125,10 @@ Features:
 
 API (all `GET`, JSON except the stream):
 
-- `/api/log?limit=N` — newest N lines, newest first.
-- `/api/stream` — Server-Sent Events live tail (initial snapshot, then appends).
+- `/api/log?limit=N` — newest N lines across the rotated history **and** the
+  current log, newest first.
+- `/api/stream` — Server-Sent Events live tail (initial snapshot that includes
+  rotated history, then appends of new lines).
 - `/api/version` — web viewer name/version.
 - `/api/status` — syslogd version/pid/online from the server status file.
 - `/demo` (and `/demo/*`) — the same viewer, but every API call reads the

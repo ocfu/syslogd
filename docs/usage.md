@@ -29,10 +29,32 @@ Notes:
 - On startup the server unconditionally writes a status file
   `/var/run/custom_syslog.status` (`version=`, `pid=`, `port=`, `logfile=`)
   and removes it on shutdown. The web viewer reads it for `/api/status`.
-- The log file rotates automatically once it reaches 5 MB: the current file is
-  renamed to `<logfile>.<YYYYMMDD_HHMMSS>` and a new one is started.
+- The log file rotates automatically once it reaches `MAX_LOG_SIZE` (default
+  5 MB). Rotation uses a numbered scheme: the current file becomes `.1`, each
+  existing `.i` is shifted to `.i+1`, and `.N` (oldest, `N = MAX_LOG_FILES`,
+  default 5) is deleted — so the history is `<logfile>.1` … `<logfile>.N` with
+  `.N` the oldest.
 - SIGINT and SIGTERM trigger a clean shutdown (remove the PID/status file,
   close the socket, close syslog).
+
+### Environment variables (syslogd)
+
+The server can be configured with environment variables instead of flags.
+Flags take precedence where both are set. `SYSLOGD_*` variables for the server:
+
+| Variable | Description | Default |
+| -------- | ----------- | ------- |
+| `SYSLOGD_PORT` | UDP port to listen on | `514` |
+| `SYSLOGD_LOG_FILE` | Path to the log file | `/var/log/custom_syslog.log` |
+| `SYSLOGD_MAX_LOG_SIZE` | Rotation threshold in bytes | `5242880` (5 MB) |
+| `SYSLOGD_MAX_LOG_FILES` | Number of rotated history files kept | `5` |
+
+Example:
+
+```
+SYSLOGD_PORT=5514 SYSLOGD_LOG_FILE=/tmp/custom.log \
+SYSLOGD_MAX_LOG_SIZE=1048576 SYSLOGD_MAX_LOG_FILES=3 ./build/syslogd
+```
 
 ### Log format (RFC 5424)
 
@@ -116,8 +138,10 @@ Usage: ./build/syslogd_web [-w webroot] [-V]
 # open http://localhost:8090/
 ```
 
-The viewer reads `/var/log/custom_syslog.log` (compile-time default). Start
-the server with `-l /var/log/custom_syslog.log` so the viewer finds its data.
+The viewer reads `/var/log/custom_syslog.log` by default (the same file the
+server writes), including the `/var/log/custom_syslog.log.N` rotated history.
+Start the server with `-l /var/log/custom_syslog.log` (or `SYSLOGD_LOG_FILE`)
+so the viewer finds its data.
 Table columns: Timestamp (browser-local, with the time-zone id in the header),
 Host, Severity, MsgID, Message, Data (structured data), App-Name, Facility,
 ProcessID.
@@ -128,13 +152,32 @@ to newest" live tail that highlights freshly arrived rows (grey line glow for
 1 s plus a left bar for 5 s). A live-connection indicator and a `syslogd`
 online/offline badge are shown in the header.
 
+### Environment variables (syslogd_web)
+
+The viewer is configured with `SYSLOGD_WEB_*` environment variables:
+
+| Variable | Description | Default |
+| -------- | ----------- | ------- |
+| `SYSLOGD_WEB_PORT` | HTTP port to bind | `8090` |
+| `SYSLOGD_WEB_LOG_FILE` | Log file to read (plus its rotated history) | `/var/log/custom_syslog.log` |
+| `SYSLOGD_WEB_MAX_LOG_FILES` | Number of rotated history files to include | `5` |
+
+The viewer must know how many history files the server keeps
+(`MAX_LOG_FILES`); set `SYSLOGD_WEB_MAX_LOG_FILES` to the same value so it
+shows the full history. Example:
+
+```
+SYSLOGD_WEB_PORT=8090 SYSLOGD_WEB_LOG_FILE=/tmp/custom.log \
+SYSLOGD_WEB_MAX_LOG_FILES=3 ./build/syslogd_web -w web
+```
+
 ### API (all GET)
 
 | Endpoint | Response |
 | -------- | -------- |
-| `/api/log?limit=N` | JSON array of the newest N lines (newest first; default 500, max 512 kept). Each entry: timestamp (UTC RFC 3339 with ms), host, app, proc, msgid, facility, severity, sd, msg. |
-| `/api/stream` | Server-Sent Events. Initial event = snapshot of the newest lines (200 live / 512 demo), then every 500 ms a poll appends newly written lines as individual events. Handles log rotation. |
-| `/api/version` | `{"name":"syslogd_web","version":"0.0.2"}` |
+| `/api/log?limit=N` | JSON array of the newest N lines (newest first; default 500, max 512 kept), spanning the rotated history and the current log. Each entry: timestamp (UTC RFC 3339 with ms), host, app, proc, msgid, facility, severity, sd, msg. |
+| `/api/stream` | Server-Sent Events. Initial event = snapshot of the newest lines (200 live / 512 demo), including the rotated history for the live log, then every 500 ms a poll appends newly written lines as individual events. Handles log rotation. |
+| `/api/version` | `{"name":"syslogd_web","version":"0.0.3"}` |
 | `/api/status` | `{"name":"syslogd","online":true\|false,"version":"…","pid":…}` from the status file; liveness via `kill(pid,0)` (`EPERM` counts as online). |
 | `/demo`, `/demo/*` | The same viewer and API, but every API call reads `web/sample-500.log` (the bundled demo log) instead of `LOGFILE`. No button in the UI; reached by URL only. |
 

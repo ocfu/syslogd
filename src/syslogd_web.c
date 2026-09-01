@@ -30,10 +30,9 @@
 #include <arpa/inet.h>
 #include <time.h>
 
+#include "syslogd_common.h"
 #include "version.h"
 
-#define PORT 8090
-#define LOGFILE "/var/log/custom_syslog.log"
 #define DEMO_LOGFILE "sample-500.log"
 #define SSE_POLL_MS 500
 #define SSE_INITIAL_LINES 200
@@ -42,9 +41,15 @@
 
 static const char *g_szWebRoot = "web";
 static char g_szDemoLog[1024];
-/* Which log file the API handlers read. Per-connection (server forks per
- * connection), so set at the top of handle_connection(). */
-static const char *g_pLogFile = LOGFILE;
+
+/* Which log file the API handlers read (set from SYSLOGD_WEB_LOG_FILE or the
+ * default, overridden per request for the demo). */
+static char g_szLogFile[512] = DEFAULT_LOG_FILE;
+static const char *g_pLogFile = DEFAULT_LOG_FILE;
+/* Number of rotated history files to include (set from SYSLOGD_WEB_MAX_LOG_FILES). */
+static int g_nMaxLogFiles = DEFAULT_MAX_LOG_FILES;
+/* True when the per-connection log is the singleton live file (not demo). */
+static int g_bLive = 1;
 
 static const char *g_szFacilities[] = {
    "kern", "user", "mail", "daemon", "auth", "syslog", "lpr", "news",
@@ -366,41 +371,50 @@ static void build_entry_json(Buffer *pB, LogEntry *pe) {
 }
 
 /* Read newest count lines from the log as JSON array (newest first). */
-static int api_log(int nFd, long nLimit) {
-   if (nLimit <= 0) nLimit = 500;
 
-   FILE *f = fopen(g_pLogFile, "r");
-   if (!f) {
-      send_head(nFd, "200 OK", "application/json", NULL, 2);
-      dprintf(nFd, "[]");
-      return 0;
-   }
+/* Append the valid lines of one file into a ring of entries, keeping at most
+ * nLimit newest entries in newest-last order. */
+static void ring_append_file(const char *pPath, LogEntry *aEntries, int *pnCount, long nLimit) {
+   FILE *f = fopen(pPath, "r");
+   if (!f) return;
 
    char szLine[2048];
-   LogEntry aEntries[512];
-   int nCount = 0;
-
-   /* Only keep the last nLimit lines: reuse a ring of entries. */
    while (fgets(szLine, sizeof(szLine), f)) {
       LogEntry e;
       parse_log_line(szLine, &e);
       if (!e.bValid) continue;
-      if (nLimit > 0 && (long)nCount == nLimit) {
-         /* shift ring: drop oldest */
+      if (nLimit > 0 && (long)*pnCount == nLimit) {
          memmove(aEntries, aEntries + 1, sizeof(aEntries[0]) * (nLimit - 1));
-         nCount = (int)nLimit - 1;
+         *pnCount = (int)nLimit - 1;
       }
-      if (nCount < 512) aEntries[nCount++] = e;
+      if (*pnCount < 512) aEntries[(*pnCount)++] = e;
    }
    fclose(f);
+}
+
+static int api_log(int nFd, long nLimit) {
+   if (nLimit <= 0) nLimit = 500;
+
+   LogEntry aEntries[512];
+   int nCount = 0;
+
+   if (g_bLive) {
+      /* Read history (oldest .N .. .1) then the current file, so the ring
+       * ends up newest-last with the current log on top. */
+      for (int nI = g_nMaxLogFiles; nI >= 1; nI--) {
+         char szPath[1024];
+         snprintf(szPath, sizeof(szPath), "%s.%d", g_pLogFile, nI);
+         ring_append_file(szPath, aEntries, &nCount, nLimit);
+      }
+   }
+   ring_append_file(g_pLogFile, aEntries, &nCount, nLimit);
 
    Buffer body;
    buff_init(&body);
    buff_appendf(&body, "[");
-   for (int i = nCount - 1; i >= 0; i--) {
-      LogEntry *pe = &aEntries[i];
-      if (i != nCount - 1) buff_appendf(&body, ",");
-      build_entry_json(&body, pe);
+   for (int nI = nCount - 1; nI >= 0; nI--) {
+      if (nI != nCount - 1) buff_appendf(&body, ",");
+      build_entry_json(&body, &aEntries[nI]);
    }
    buff_appendf(&body, "]");
 
@@ -420,31 +434,54 @@ static void get_file_size_offset(FILE *f, long *pnSize) {
 }
 
 static int api_stream(int nFd) {
-   /* Initial snapshot: newest N lines as one event. */
+   /* Initial snapshot: newest N lines as one event. Include rotated history
+    * for the live log, oldest first, then the current file. */
    FILE *f = fopen(g_pLogFile, "r");
    long nStartPos = 0;
    Buffer body;
    buff_init(&body);
 
-   if (f) {
-      long nFileSize;
-      get_file_size_offset(f, &nFileSize);
-      nStartPos = nFileSize;
+   int nKeepMax = g_bLive ? SSE_INITIAL_LINES : DEMO_INITIAL_LINES;
+   char (*aKeep)[2048] = malloc(sizeof(char[2048]) * (size_t)nKeepMax);
+   int nKeep = 0;
 
-      /* collect last LINE_BUF bytes or whole file, whichever is smaller */
-      long nWindow = nFileSize;
-      if (nWindow > 256 * 1024) nWindow = 256 * 1024;
-      fseek(f, nFileSize - nWindow, SEEK_SET);
-      char *pChunk = malloc((size_t)nWindow + 2);
-      if (pChunk) {
-         size_t nGot = fread(pChunk, 1, (size_t)nWindow, f);
-         pChunk[nGot] = '\0';
-         buff_appendf(&body, "[");
-         /* walk lines of the window, take the last nKeepMax lines */
-         int nKeepMax = (g_pLogFile == g_szDemoLog) ? DEMO_INITIAL_LINES : SSE_INITIAL_LINES;
-         char (*aKeep)[2048] = malloc(sizeof(char[2048]) * (size_t)nKeepMax);
-         int nKeep = 0;
-         if (aKeep) {
+   if (aKeep) {
+      if (g_bLive) {
+         for (int nI = g_nMaxLogFiles; nI >= 1; nI--) {
+            char szPath[1024];
+            snprintf(szPath, sizeof(szPath), "%s.%d", g_pLogFile, nI);
+            FILE *fh = fopen(szPath, "r");
+            if (fh) {
+               char szLine[2048];
+               while (fgets(szLine, sizeof(szLine), fh)) {
+                  char *pNL = strchr(szLine, '\n');
+                  if (pNL) *pNL = '\0';
+                  if (nKeep == nKeepMax) {
+                     memmove(aKeep, aKeep + 1, sizeof(aKeep[0]) * (size_t)(nKeep - 1));
+                     nKeep--;
+                  }
+                  snprintf(aKeep[nKeep], sizeof(aKeep[0]), "%s", szLine);
+                  nKeep++;
+               }
+               fclose(fh);
+            }
+         }
+      }
+
+      if (f) {
+         long nFileSize;
+         get_file_size_offset(f, &nFileSize);
+         nStartPos = nFileSize;
+
+         /* collect last LINE_BUF bytes or whole file, whichever is smaller */
+         long nWindow = nFileSize;
+         if (nWindow > 256 * 1024) nWindow = 256 * 1024;
+         fseek(f, nFileSize - nWindow, SEEK_SET);
+         char *pChunk = malloc((size_t)nWindow + 2);
+         if (pChunk) {
+            size_t nGot = fread(pChunk, 1, (size_t)nWindow, f);
+            pChunk[nGot] = '\0';
+            /* walk lines of the window, take the last nKeepMax lines */
             char *pLine = strtok(pChunk, "\n");
             while (pLine) {
                if (nKeep == nKeepMax) {
@@ -455,19 +492,21 @@ static int api_stream(int nFd) {
                nKeep++;
                pLine = strtok(NULL, "\n");
             }
-            for (int i = 0; i < nKeep; i++) {
-               LogEntry e;
-               parse_log_line(aKeep[i], &e);
-               if (!e.bValid) continue;
-               if (i != 0) buff_appendf(&body, ",");
-               build_entry_json(&body, &e);
-            }
-            free(aKeep);
+            free(pChunk);
          }
-         buff_appendf(&body, "]");
-         free(pChunk);
       }
    }
+
+   buff_appendf(&body, "[");
+   for (int nI = 0; nI < nKeep; nI++) {
+      LogEntry e;
+      parse_log_line(aKeep[nI], &e);
+      if (!e.bValid) continue;
+      if (nI != 0) buff_appendf(&body, ",");
+      build_entry_json(&body, &e);
+   }
+   buff_appendf(&body, "]");
+   if (aKeep) free(aKeep);
 
    /* Send SSE headers and the initial event. */
    dprintf(nFd,
@@ -648,10 +687,12 @@ static void handle_connection(int nFd) {
    if (nDemo) {
       snprintf(g_szDemoLog, sizeof(g_szDemoLog), "%s/%s", g_szWebRoot, DEMO_LOGFILE);
       g_pLogFile = g_szDemoLog;
+      g_bLive = 0;
       memmove(szPath, szPath + 5, strlen(szPath + 5) + 1);
       if (szPath[0] == '\0') strcpy(szPath, "/");
    } else {
-      g_pLogFile = LOGFILE;
+      g_pLogFile = g_szLogFile;
+      g_bLive = 1;
    }
 
    /* Only GET is supported. */
@@ -718,6 +759,26 @@ static void print_usage(const char *pProg) {
 }
 
 int main(int argc, char *argv[]) {
+   int nPort = DEFAULT_WEB_PORT;
+   const char *szEnv;
+
+   szEnv = getenv(ENV_WEB_PORT);
+   if (szEnv && szEnv[0] != '\0') {
+      int nValue = atoi(szEnv);
+      if (nValue > 0) nPort = nValue;
+   }
+   szEnv = getenv(ENV_WEB_LOG_FILE);
+   if (szEnv && szEnv[0] != '\0') {
+      strncpy(g_szLogFile, szEnv, sizeof(g_szLogFile) - 1);
+      g_szLogFile[sizeof(g_szLogFile) - 1] = '\0';
+      g_pLogFile = g_szLogFile;
+   }
+   szEnv = getenv(ENV_WEB_MAX_LOG_FILES);
+   if (szEnv && szEnv[0] != '\0') {
+      int nValue = atoi(szEnv);
+      if (nValue > 0) g_nMaxLogFiles = nValue;
+   }
+
    int nOpt;
    while ((nOpt = getopt(argc, argv, "w:hV")) != -1) {
       switch (nOpt) {
@@ -745,7 +806,7 @@ int main(int argc, char *argv[]) {
       struct sockaddr_in6 addr6;
       addr6.sin6_family = AF_INET6;
       addr6.sin6_addr = in6addr_any;
-      addr6.sin6_port = htons(PORT);
+      addr6.sin6_port = htons(nPort);
 
       if (bind(nServerFd, (struct sockaddr *)&addr6, sizeof(addr6)) < 0) {
          perror("bind");
@@ -762,7 +823,7 @@ int main(int argc, char *argv[]) {
       struct sockaddr_in addr;
       addr.sin_family = AF_INET;
       addr.sin_addr.s_addr = INADDR_ANY;
-      addr.sin_port = htons(PORT);
+      addr.sin_port = htons(nPort);
 
       if (bind(nServerFd, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
          perror("bind");
@@ -775,7 +836,7 @@ int main(int argc, char *argv[]) {
       exit(1);
    }
 
-   printf("Syslog web server running on http://localhost:%d/ (web root: %s)\n", PORT, g_szWebRoot);
+   printf("Syslog web server running on http://localhost:%d/ (web root: %s)\n", nPort, g_szWebRoot);
    fflush(stdout);
 
    /* Fork per connection so long-lived SSE clients do not block the accept loop. */
