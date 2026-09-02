@@ -141,14 +141,15 @@ make clean
   - `GET /api/log?limit=N` — newest N lines as JSON (newest first, max 2000
     kept), across the rotated history and the current log. The ring buffer
     always keeps the newest N entries (the tail of the log), never the head;
-    `limit` is capped at the 2000-entry array size.
+    `limit` is capped at the 2000-entry array size. The ring is a circular
+    buffer (O(1) append, no memmove), so reading a large log is fast.
   - `GET /api/stream` — Server-Sent Events: pushes appended lines as
     individual events every 500 ms. Handles log rotation. The initial snapshot
     (200 live / 512 demo) is sent but the frontend ignores it, loading history
     via `/api/log` instead.
   - `GET /api/config` — `{"maxRows":N}`; N is the viewer entry cap the
     browser keeps (from `SYSLOGD_MAX_ENTRIES`, default 4000).
-  - `GET /api/version` — `{"name":"syslogd_web","version":"0.0.7"}`.
+  - `GET /api/version` — `{"name":"syslogd_web","version":"0.0.8"}`.
   - `GET /api/status` — reads the server status file and reports
     `online`/`offline` (liveness via `kill(pid,0)`; `EPERM` counts as online).
   - `/demo*` — same SPA/API with the demo logfile.

@@ -375,9 +375,11 @@ static void build_entry_json(Buffer *pB, LogEntry *pe) {
 
 /* Read newest count lines from the log as JSON array (newest first). */
 
-/* Append the valid lines of one file into a ring of entries, keeping at most
- * nLimit newest entries in newest-last order. */
-static void ring_append_file(const char *pPath, LogEntry *aEntries, int *pnCount, long nLimit) {
+/* Append the valid lines of one file into a circular ring of entries, keeping
+ * at most nLimit newest entries. *pnWrapP is the slot where the next entry is
+ * written once the ring is full; *pnCount holds the number of valid entries
+ * (capped at nLimit). */
+static void ring_append_file(const char *pPath, LogEntry *aEntries, int *pnCount, int *pnWrapP, long nLimit) {
    FILE *f = fopen(pPath, "r");
    if (!f) return;
 
@@ -386,11 +388,14 @@ static void ring_append_file(const char *pPath, LogEntry *aEntries, int *pnCount
       LogEntry e;
       parse_log_line(szLine, &e);
       if (!e.bValid) continue;
-      if (nLimit > 0 && (long)*pnCount == nLimit) {
-         memmove(aEntries, aEntries + 1, sizeof(aEntries[0]) * (nLimit - 1));
-         *pnCount = (int)nLimit - 1;
+      if ((long)*pnCount < nLimit) {
+         /* Ring not yet full: append, oldest at index 0. */
+         aEntries[(*pnCount)++] = e;
+      } else {
+         /* Overwrite the oldest slot and advance the wrap pointer. */
+         aEntries[(*pnWrapP)++] = e;
+         if (*pnWrapP == nLimit) *pnWrapP = 0;
       }
-      if (*pnCount < nLimit) aEntries[(*pnCount)++] = e;
    }
    fclose(f);
 }
@@ -406,6 +411,7 @@ static int api_log(int nFd, long nLimit) {
       return 1;
    }
    int nCount = 0;
+   int nWrapP = 0;
 
    if (g_bLive) {
       /* Read history (oldest .N .. .1) then the current file, so the ring
@@ -413,17 +419,30 @@ static int api_log(int nFd, long nLimit) {
       for (int nI = g_nMaxLogFiles; nI >= 1; nI--) {
          char szPath[1024];
          snprintf(szPath, sizeof(szPath), "%s.%d", g_pLogFile, nI);
-         ring_append_file(szPath, aEntries, &nCount, nLimit);
+         ring_append_file(szPath, aEntries, &nCount, &nWrapP, nLimit);
       }
    }
-   ring_append_file(g_pLogFile, aEntries, &nCount, nLimit);
+   ring_append_file(g_pLogFile, aEntries, &nCount, &nWrapP, nLimit);
 
    Buffer body;
    buff_init(&body);
    buff_appendf(&body, "[");
-   for (int nI = nCount - 1; nI >= 0; nI--) {
-      if (nI != nCount - 1) buff_appendf(&body, ",");
-      build_entry_json(&body, &aEntries[nI]);
+   /* Emit newest-last as newest-first. When the ring is full the oldest entry
+    * is at nWrapP, so start there and walk forward wrapping around. */
+   if (nCount < nLimit) {
+      /* Not full: oldest at index 0, newest at nCount-1. */
+      for (int nI = nCount - 1; nI >= 0; nI--) {
+         if (nI != nCount - 1) buff_appendf(&body, ",");
+         build_entry_json(&body, &aEntries[nI]);
+      }
+   } else {
+      /* Full: newest at (nWrapP-1), walk backward to the oldest at nWrapP. */
+      int nI = (nWrapP + nLimit - 1) % nLimit;
+      for (int nK = 0; nK < nLimit; nK++) {
+         if (nK != 0) buff_appendf(&body, ",");
+         build_entry_json(&body, &aEntries[nI]);
+         nI = (nI + nLimit - 1) % nLimit;
+      }
    }
    buff_appendf(&body, "]");
 
