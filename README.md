@@ -128,8 +128,9 @@ API (all `GET`, JSON except the stream):
 
 - `/api/log?limit=N` — newest N lines across the rotated history **and** the
   current log, newest first.
-- `/api/stream` — Server-Sent Events live tail (initial snapshot that includes
-  rotated history, then appends of new lines).
+- `/api/stream` — Server-Sent Events live tail (pushes newly written lines;
+  the initial snapshot is sent but ignored by the frontend, which loads
+  history via `/api/log`).
 - `/api/version` — web viewer name/version.
 - `/api/status` — syslogd version/pid/online from the server status file.
 - `/demo` (and `/demo/*`) — the same viewer, but every API call reads the

@@ -123,9 +123,11 @@ make clean
   (`N = SYSLOGD_MAX_LOG_FILES`, default 5) is deleted. History is therefore
   `<logfile>.1` … `<logfile>.N` with `.N` oldest.
 - **Web viewer history**: `syslogd_web` reads the rotated history
-  (`<logfile>.N` … `<logfile>.1`) plus the current log in `/api/log` and the
-  `/api/stream` initial snapshot, using the same `SYSLOGD_MAX_LOG_FILES` as
-  the server. The demo (`/demo`) uses only the bundled sample log, no history.
+  (`<logfile>.N` … `<logfile>.1`) plus the current log in `/api/log`, using
+  the same `SYSLOGD_MAX_LOG_FILES` as the server. The frontend loads this
+  full history on startup via `/api/log` and uses the `/api/stream` SSE
+  connection only for live updates. The demo (`/demo`) uses only the bundled
+  sample log, no history.
 - **Timestamps**: written/emitted as UTC RFC 3339 with milliseconds
   (`2026-08-30T21:17:47.874Z`). The JSON API (`/api/log`, `/api/stream`)
   sends this ISO UTC string; the browser converts it to local time for
@@ -138,13 +140,13 @@ make clean
 
   - `GET /api/log?limit=N` — newest N lines as JSON (newest first, max 2000
     kept), across the rotated history and the current log.
-  - `GET /api/stream` — Server-Sent Events: initial snapshot of the newest
-    lines (including rotated history), then polls the log file and pushes
-    appended lines. Handles log rotation. The initial-window size is 200 for
-    the live log and 512 for the demo so all sample entries show.
+  - `GET /api/stream` — Server-Sent Events: pushes appended lines as
+    individual events every 500 ms. Handles log rotation. The initial snapshot
+    (200 live / 512 demo) is sent but the frontend ignores it, loading history
+    via `/api/log` instead.
   - `GET /api/config` — `{"maxRows":N}`; N is the viewer entry cap the
     browser keeps (from `SYSLOGD_MAX_ENTRIES`, default 4000).
-  - `GET /api/version` — `{"name":"syslogd_web","version":"0.0.5"}`.
+  - `GET /api/version` — `{"name":"syslogd_web","version":"0.0.6"}`.
   - `GET /api/status` — reads the server status file and reports
     `online`/`offline` (liveness via `kill(pid,0)`; `EPERM` counts as online).
   - `/demo*` — same SPA/API with the demo logfile.
@@ -160,7 +162,9 @@ make clean
   newest" with a grey highlight for freshly arrived rows (line glow 1 s, left
   bar 5 s), live-connection indicator, and a `syslogd` online/offline badge.
   `app.js` detects the site base (`/` vs `/demo`) via `location.pathname` and
-  prefixes API calls accordingly (`API_BASE`).
+  prefixes API calls accordingly (`API_BASE`). On startup the viewer fetches
+  `/api/config` then `/api/log` for the full history, and opens the SSE
+  stream only for live updates.
 
 ## Coding conventions
 

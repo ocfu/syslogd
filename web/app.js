@@ -393,8 +393,8 @@
     es.onmessage = function (ev) {
       try {
         var e = JSON.parse(ev.data);
-        if (Array.isArray(e)) { e.forEach(addEntry); render(); }
-        else addEntry(e);
+        if (Array.isArray(e)) { /* initial snapshot — loaded via /api/log */ return; }
+        addEntry(e);
       } catch (err) { /* ignore malformed */ }
     };
   }
@@ -505,14 +505,6 @@
     })
     .catch(function () { /* ignore */ });
 
-  /* Apply the server-configured entry cap (SYSLOGD_MAX_ENTRIES). */
-  fetch(API_BASE + "/api/config")
-    .then(function (r) { return r.json(); })
-    .then(function (c) {
-      if (c && c.maxRows > 0) MAX_ROWS = c.maxRows;
-    })
-    .catch(function () { /* ignore */ });
-
   /* Show the browser time zone id next to the Timestamp column header. */
   var tz = "local";
   try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone || "local"; } catch (e) { /* ignore */ }
@@ -554,6 +546,28 @@
   document.addEventListener("click", function () { closeMultiSelects(null); });
 
   updateHeaderIndicators();
-  openStream();
-  render();
+
+  /* Startup: fetch config → load history via /api/log → connect SSE for live. */
+  fetch(API_BASE + "/api/config")
+    .then(function (r) { return r.json(); })
+    .then(function (c) {
+      if (c && c.maxRows > 0) MAX_ROWS = c.maxRows;
+      return fetch(API_BASE + "/api/log?limit=" + MAX_ROWS);
+    })
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      if (Array.isArray(data)) {
+        /* /api/log returns newest-first; push reversed so entries are
+         * oldest->newest, matching the live/SSE path and pin-to-newest. */
+        for (var i = data.length - 1; i >= 0; i--) {
+          entries.push(normalizeEntry(data[i]));
+        }
+        if (entries.length > MAX_ROWS) {
+          entries.splice(0, entries.length - MAX_ROWS);
+        }
+      }
+      openStream();
+      render();
+    })
+    .catch(function () { openStream(); render(); });
 })();
