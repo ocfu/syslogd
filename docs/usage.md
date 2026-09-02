@@ -163,6 +163,7 @@ history settings with the server (`SYSLOGD_LOG_FILE` and
 | `SYSLOGD_WEB_PORT` | HTTP port to bind | `8090` |
 | `SYSLOGD_LOG_FILE` | Log file (plus its rotated history) | `/var/log/custom_syslog.log` |
 | `SYSLOGD_MAX_LOG_FILES` | Number of rotated history files to include | `5` |
+| `SYSLOGD_MAX_ENTRIES` | Max entries the web viewer keeps in memory (delivered to the browser via `/api/config`) | `4000` |
 
 The viewer reads the same `SYSLOGD_LOG_FILE` and `SYSLOGD_MAX_LOG_FILES` the
 server uses, so they stay in sync automatically and the viewer shows the full
@@ -177,9 +178,10 @@ SYSLOGD_MAX_LOG_FILES=3 ./build/syslogd_web -w web
 
 | Endpoint | Response |
 | -------- | -------- |
-| `/api/log?limit=N` | JSON array of the newest N lines (newest first; default 500, max 512 kept), spanning the rotated history and the current log. Each entry: timestamp (UTC RFC 3339 with ms), host, app, proc, msgid, facility, severity, sd, msg. |
+| `/api/log?limit=N` | JSON array of the newest N lines (newest first; default 500, max 2000 kept), spanning the rotated history and the current log. Each entry: timestamp (UTC RFC 3339 with ms), host, app, proc, msgid, facility, severity, sd, msg. |
 | `/api/stream` | Server-Sent Events. Initial event = snapshot of the newest lines (200 live / 512 demo), including the rotated history for the live log, then every 500 ms a poll appends newly written lines as individual events. Handles log rotation. |
-| `/api/version` | `{"name":"syslogd_web","version":"0.0.3"}` |
+| `/api/config` | `{"maxRows":N}` — the viewer entry cap the browser should apply (from `SYSLOGD_MAX_ENTRIES`; default `4000`). |
+| `/api/version` | `{"name":"syslogd_web","version":"0.0.5"}` |
 | `/api/status` | `{"name":"syslogd","online":true\|false,"version":"…","pid":…}` from the status file; liveness via `kill(pid,0)` (`EPERM` counts as online). |
 | `/demo`, `/demo/*` | The same viewer and API, but every API call reads `web/sample-500.log` (the bundled demo log) instead of `LOGFILE`. No button in the UI; reached by URL only. |
 

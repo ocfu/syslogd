@@ -5,7 +5,7 @@
    * so the server routes to the bundled sample log instead of the live file. */
   var API_BASE = (location.pathname.indexOf("/demo") === 0) ? "/demo" : "";
 
-  var MAX_ROWS = 2000;
+  var MAX_ROWS = 4000;
   var HIGHLIGHT_MS = 1000;
   var BAR_HIGHLIGHT_MS = 5000;
   var entries = [];
@@ -441,7 +441,7 @@
   });
 
   reloadBtn.addEventListener("click", function () {
-    fetch(API_BASE + "/api/log?limit=2000")
+    fetch(API_BASE + "/api/log?limit=" + MAX_ROWS)
       .then(function (r) {
         if (!r.ok) throw new Error("reload failed");
         return r.json();
@@ -502,6 +502,14 @@
     .then(function (r) { return r.json(); })
     .then(function (v) {
       if (v && v.version) versionBadge.textContent = "v" + v.version;
+    })
+    .catch(function () { /* ignore */ });
+
+  /* Apply the server-configured entry cap (SYSLOGD_MAX_ENTRIES). */
+  fetch(API_BASE + "/api/config")
+    .then(function (r) { return r.json(); })
+    .then(function (c) {
+      if (c && c.maxRows > 0) MAX_ROWS = c.maxRows;
     })
     .catch(function () { /* ignore */ });
 

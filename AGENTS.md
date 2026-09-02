@@ -136,13 +136,15 @@ make clean
   root with root-relative paths). It forks per connection, so a per-request
   global (e.g. the active log file `g_pLogFile`) is safe. API:
 
-  - `GET /api/log?limit=N` — newest N lines as JSON (newest first, max 512
+  - `GET /api/log?limit=N` — newest N lines as JSON (newest first, max 2000
     kept), across the rotated history and the current log.
   - `GET /api/stream` — Server-Sent Events: initial snapshot of the newest
     lines (including rotated history), then polls the log file and pushes
     appended lines. Handles log rotation. The initial-window size is 200 for
     the live log and 512 for the demo so all sample entries show.
-  - `GET /api/version` — `{"name":"syslogd_web","version":"0.0.3"}`.
+  - `GET /api/config` — `{"maxRows":N}`; N is the viewer entry cap the
+    browser keeps (from `SYSLOGD_MAX_ENTRIES`, default 4000).
+  - `GET /api/version` — `{"name":"syslogd_web","version":"0.0.5"}`.
   - `GET /api/status` — reads the server status file and reports
     `online`/`offline` (liveness via `kill(pid,0)`; `EPERM` counts as online).
   - `/demo*` — same SPA/API with the demo logfile.

@@ -48,6 +48,9 @@ static char g_szLogFile[512] = DEFAULT_LOG_FILE;
 static const char *g_pLogFile = DEFAULT_LOG_FILE;
 /* Number of rotated history files to include (set from SYSLOGD_MAX_LOG_FILES). */
 static int g_nMaxLogFiles = DEFAULT_MAX_LOG_FILES;
+/* Max entries the web viewer keeps in memory (set from SYSLOGD_MAX_ENTRIES).
+ * Delivered to the browser via /api/config. */
+static int g_nMaxEntries = DEFAULT_MAX_ENTRIES;
 /* True when the per-connection log is the singleton live file (not demo). */
 static int g_bLive = 1;
 
@@ -387,15 +390,20 @@ static void ring_append_file(const char *pPath, LogEntry *aEntries, int *pnCount
          memmove(aEntries, aEntries + 1, sizeof(aEntries[0]) * (nLimit - 1));
          *pnCount = (int)nLimit - 1;
       }
-      if (*pnCount < 512) aEntries[(*pnCount)++] = e;
+      if (*pnCount < DEFAULT_API_LOG_LIMIT) aEntries[(*pnCount)++] = e;
    }
    fclose(f);
 }
 
 static int api_log(int nFd, long nLimit) {
-   if (nLimit <= 0) nLimit = 500;
+   if (nLimit <= 0) nLimit = DEFAULT_API_LOG_LIMIT;
 
-   LogEntry aEntries[512];
+   LogEntry *aEntries = malloc(sizeof(LogEntry) * DEFAULT_API_LOG_LIMIT);
+   if (!aEntries) {
+      send_head(nFd, "500 Internal Server Error", "text/plain", NULL, 21);
+      dprintf(nFd, "Internal server error");
+      return 1;
+   }
    int nCount = 0;
 
    if (g_bLive) {
@@ -421,6 +429,7 @@ static int api_log(int nFd, long nLimit) {
    send_head(nFd, "200 OK", "application/json", NULL, (long)body.nLen);
    if (body.pData) dprintf(nFd, "%s", body.pData);
    buff_free(&body);
+   free(aEntries);
    return 0;
 }
 
@@ -669,6 +678,15 @@ static void api_status(int nFd) {
    close(nFd);
 }
 
+static void api_config(int nFd) {
+   char szBody[128];
+   snprintf(szBody, sizeof(szBody), "{\"maxRows\":%d}", g_nMaxEntries);
+   send_head(nFd, "200 OK", "application/json", NULL, (long)strlen(szBody));
+   dprintf(nFd, "%s", szBody);
+   shutdown(nFd, SHUT_WR);
+   close(nFd);
+}
+
 static void handle_connection(int nFd) {
    char szReq[8192];
    int nLen = read_request(nFd, szReq, sizeof(szReq));
@@ -701,6 +719,11 @@ static void handle_connection(int nFd) {
       dprintf(nFd, "Method not allowed");
       shutdown(nFd, SHUT_WR);
       close(nFd);
+      return;
+   }
+
+   if (strcmp(szPath, "/api/config") == 0) {
+      api_config(nFd);
       return;
    }
 
@@ -777,6 +800,11 @@ int main(int argc, char *argv[]) {
    if (szEnv && szEnv[0] != '\0') {
       int nValue = atoi(szEnv);
       if (nValue > 0) g_nMaxLogFiles = nValue;
+   }
+   szEnv = getenv(ENV_SYSLOGD_MAX_ENTRIES);
+   if (szEnv && szEnv[0] != '\0') {
+      int nValue = atoi(szEnv);
+      if (nValue > 0) g_nMaxEntries = nValue;
    }
 
    int nOpt;

@@ -21,5 +21,8 @@
 
 /* syslogd_web (viewer) environment variable names. */
 #define ENV_WEB_PORT "SYSLOGD_WEB_PORT"
+#define ENV_SYSLOGD_MAX_ENTRIES "SYSLOGD_MAX_ENTRIES"
+#define DEFAULT_MAX_ENTRIES 4000
+#define DEFAULT_API_LOG_LIMIT 2000
 
 #endif

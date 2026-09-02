@@ -92,6 +92,7 @@ history stay in sync automatically; only the web port is viewer-specific.
 | `SYSLOGD_MAX_LOG_SIZE` | yes | — | `5242880` (5 MB) |
 | `SYSLOGD_MAX_LOG_FILES` | yes | yes | `5` |
 | `SYSLOGD_WEB_PORT` | — | HTTP port | `8090` |
+| `SYSLOGD_MAX_ENTRIES` | — | Viewer entry cap kept in the browser | `4000` |
 
 The server names rotated history files `<logfile>.1` … `<logfile>.N` (newest
 history first, `.N` oldest). `syslogd_web` reads the same history the server
