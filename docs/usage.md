@@ -178,10 +178,10 @@ SYSLOGD_MAX_LOG_FILES=3 ./build/syslogd_web -w web
 
 | Endpoint | Response |
 | -------- | -------- |
-| `/api/log?limit=N` | JSON array of the newest N lines (newest first; default 500, max 2000 kept), spanning the rotated history and the current log. Each entry: timestamp (UTC RFC 3339 with ms), host, app, proc, msgid, facility, severity, sd, msg. |
+| `/api/log?limit=N` | JSON array of the newest N lines (newest first; default 500, max 2000 kept), spanning the rotated history and the current log. Always returns the tail (newest) entries, never the head. Each entry: timestamp (UTC RFC 3339 with ms), host, app, proc, msgid, facility, severity, sd, msg. |
 | `/api/stream` | Server-Sent Events. Pushes newly written lines as individual events every 500 ms. Handles log rotation. An initial snapshot (200 live / 512 demo) is sent but the frontend ignores it, loading history via `/api/log` instead. |
 | `/api/config` | `{"maxRows":N}` — the viewer entry cap the browser should apply (from `SYSLOGD_MAX_ENTRIES`; default `4000`). |
-| `/api/version` | `{"name":"syslogd_web","version":"0.0.6"}` |
+| `/api/version` | `{"name":"syslogd_web","version":"0.0.7"}` |
 | `/api/status` | `{"name":"syslogd","online":true\|false,"version":"…","pid":…}` from the status file; liveness via `kill(pid,0)` (`EPERM` counts as online). |
 | `/demo`, `/demo/*` | The same viewer and API, but every API call reads `web/sample-500.log` (the bundled demo log) instead of `LOGFILE`. No button in the UI; reached by URL only. |
 

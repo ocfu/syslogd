@@ -390,15 +390,16 @@ static void ring_append_file(const char *pPath, LogEntry *aEntries, int *pnCount
          memmove(aEntries, aEntries + 1, sizeof(aEntries[0]) * (nLimit - 1));
          *pnCount = (int)nLimit - 1;
       }
-      if (*pnCount < DEFAULT_API_LOG_LIMIT) aEntries[(*pnCount)++] = e;
+      if (*pnCount < nLimit) aEntries[(*pnCount)++] = e;
    }
    fclose(f);
 }
 
 static int api_log(int nFd, long nLimit) {
    if (nLimit <= 0) nLimit = DEFAULT_API_LOG_LIMIT;
+   if (nLimit > DEFAULT_API_LOG_LIMIT) nLimit = DEFAULT_API_LOG_LIMIT;
 
-   LogEntry *aEntries = malloc(sizeof(LogEntry) * DEFAULT_API_LOG_LIMIT);
+   LogEntry *aEntries = malloc(sizeof(LogEntry) * (size_t)nLimit);
    if (!aEntries) {
       send_head(nFd, "500 Internal Server Error", "text/plain", NULL, 21);
       dprintf(nFd, "Internal server error");
